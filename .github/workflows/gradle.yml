@@ -1,0 +1,45 @@
+name: Java CI with Gradle
+
+# MAIN 브랜치 PUSH 될 떄마다 실행
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 소스 코드 체크 아웃
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # JDK 17 설정
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # .yml 파일 환경 변수 설정
+      - name: yml Set environment variables
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: ./src/main/resources/application.yml
+        env:
+          spring.datasource.url: ${{ secrets.DB_URL }}
+          spring.datasource.username: ${{ secrets.DB_USERNAME }}
+          spring.datasource.password: ${{ secrets.DB_PASSWORD }}
+
+      # 실행 권한 부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Gradle 사용 빌드
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      # 테스트 실행 [선택]
+      - name: tests run
+        run: ./gradlew test

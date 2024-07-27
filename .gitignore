@@ -37,7 +37,15 @@ out/
 .vscode/
 
 ### 어플리케이션 설정 관련 파일 ###
-application.yml
+application*.yml
+
+### 첨부파일 관련 ###
+**/src/main/resources/**/*.jpg
+**/src/main/resources/**/*.jpeg
+**/src/main/resources/**/*.png
+**/src/main/resources/**/*.gif
+**/src/main/resources/**/*.mp4
+**/src/main/resources/**/*.mp3
 
 ### QueryDSL 관련 파일 제외 ###
 /src/main/generated/

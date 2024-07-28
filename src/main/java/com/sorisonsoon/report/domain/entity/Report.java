@@ -24,6 +24,6 @@ public class Report {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private ReportCategory category;
 }

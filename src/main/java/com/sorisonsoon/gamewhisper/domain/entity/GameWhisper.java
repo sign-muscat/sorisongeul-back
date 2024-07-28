@@ -17,6 +17,6 @@ public class GameWhisper {
 
     private String question;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private GameWhisperCategory category;
 }

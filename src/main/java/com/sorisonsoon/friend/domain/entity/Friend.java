@@ -24,6 +24,6 @@ public class Friend {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private FriendStatus status;
 }

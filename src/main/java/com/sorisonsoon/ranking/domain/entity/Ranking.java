@@ -20,7 +20,7 @@ public class Ranking {
 
     private int userId;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private GameCategory category;
 
     private int score;

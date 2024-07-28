@@ -25,12 +25,12 @@ public class Notice {
     private boolean isFixed;
     private int views;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private NoticeStatus status;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private NoticeCategory category;
 }

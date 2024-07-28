@@ -23,7 +23,7 @@ public class Record {
     private int riddleId;
     private int voiceId;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private GameCategory category;
 
     private boolean isCorrect;

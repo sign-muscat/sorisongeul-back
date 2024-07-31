@@ -1,7 +1,8 @@
 package com.sorisonsoon.attachedfile.util;
 
-import com.sorisonsoon.common.exception.ServerInternalException;
 import com.sorisonsoon.attachedfile.domain.entity.AttachedFile;
+import com.sorisonsoon.common.exception.ServerInternalException;
+import com.sorisonsoon.common.exception.type.ExceptionCode;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,7 +15,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 import static com.sorisonsoon.common.exception.type.ExceptionCode.FAIL_TO_DELETE_FILE;
-import static com.sorisonsoon.common.exception.type.ExceptionCode.FAIL_TO_UPLOAD_FILE;
 
 
 public class FileUploadUtils {
@@ -52,7 +52,7 @@ public class FileUploadUtils {
 
             return filename;
         } catch (IOException e) {
-            throw new ServerInternalException(FAIL_TO_UPLOAD_FILE);
+            throw new ServerInternalException(ExceptionCode.FAIL_TO_EMBEDDING_MODEL);
         }
     }
 

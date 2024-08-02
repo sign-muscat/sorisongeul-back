@@ -1,4 +1,5 @@
 from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import torch
 from torchvision import transforms
@@ -12,6 +13,14 @@ import logging
 logging.basicConfig(level=logging.WARNING)
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React 앱의 URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # GPU 사용 설정 (가능한 경우)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -36,15 +45,18 @@ transform = transforms.Compose([
 class PredictionResponse(BaseModel):
     label: str
     accuracy: float
+@app.get("/")
+async def root():
+    return {"message": "Welcome to the Hand Gesture Recognition API"}
 
-@app.post("/predict/", response_model=PredictionResponse)
+@app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
     contents = await file.read()
     image = Image.open(io.BytesIO(contents)).convert("RGB")
     
     image = transform(image)
     image = image.unsqueeze(0).to(device)
-
+    
     with torch.no_grad():
         results = model(image, conf=0.25)
         predictions = results[0].boxes
@@ -58,8 +70,8 @@ async def predict(file: UploadFile = File(...)):
             accuracy = 0.0
     
     label_text = label_map.get(label, "알 수 없음")
-
-    return PredictionResponse(label=label_text, accuracy=accuracy)
+    
+    return {"label": label_text, "accuracy": accuracy}
 
 if __name__ == "__main__":
     import uvicorn

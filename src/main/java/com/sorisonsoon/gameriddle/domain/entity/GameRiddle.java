@@ -4,8 +4,10 @@ import com.sorisonsoon.common.domain.type.GameDifficulty;
 import com.sorisonsoon.gameriddle.domain.type.GameRiddleCategory;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @Entity
 @Table(name = "game_riddle")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -17,7 +19,7 @@ public class GameRiddle {
     private Long riddleId;
 
     private String question;
-    private String guide;
+    private String video;
 
     @Enumerated(EnumType.STRING)
     private GameRiddleCategory category;

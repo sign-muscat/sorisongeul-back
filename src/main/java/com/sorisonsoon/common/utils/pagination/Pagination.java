@@ -1,4 +1,4 @@
-package com.sorisonsoon.common.page;
+package com.sorisonsoon.common.utils.pagination;
 
 import org.springframework.data.domain.Page;
 

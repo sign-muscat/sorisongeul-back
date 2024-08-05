@@ -1,4 +1,4 @@
-package com.sorisonsoon.common.page;
+package com.sorisonsoon.common.utils.pagination;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

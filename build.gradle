@@ -94,21 +94,19 @@ dependencyManagement {
 /**
  * QueryDSL 설정
  */
-def generated = 'src/main/generated'
-
-tasks.withType(JavaCompile) {
-    /* QClass 생성 위치 */
-    options.getGeneratedSourceOutputDirectory().set(file(generated))
-}
+//queryDSL
+def querydslDir = "$buildDir/generated/querydsl"
 
 sourceSets {
-    /* QClass 파일을 source 하위에 추가 */
-    main.java.srcDirs += [generated]
+    main.java.srcDirs += [querydslDir]
 }
 
-clean {
-    /* Gradle Clean 시 QClass 파일 삭제 */
-    delete file(generated)
+tasks.withType(JavaCompile) {
+    options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
+}
+
+clean.doLast {
+    file(querydslDir).deleteDir()
 }
 
 tasks.named('test') {

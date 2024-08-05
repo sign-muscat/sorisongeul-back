@@ -39,7 +39,8 @@ public enum ExceptionCode {
     ALREADY_WITHDRAWN_USER(409, "이미 탈퇴한 회원입니다."),
 
     FAIL_TO_UPLOAD_FILE(500, "파일 저장에 실패하였습니다."),
-    FAIL_TO_DELETE_FILE(500, "파일 삭제에 실패하였습니다.");
+    FAIL_TO_DELETE_FILE(500, "파일 삭제에 실패하였습니다."),
+    FAIL_TO_EMBEDDING_MODEL(500, "모델 임베딩에 실패하였습니다.");
 
     private final int code;
 

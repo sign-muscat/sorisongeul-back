@@ -20,10 +20,9 @@ public class GameVoiceQuestionResponse {
     @Schema(description = "문제")
     private final String question;
 
-    @Schema(description = "카테고리")
+    @Schema(description = "분류")
     private final GameVoiceCategory category;
 
     @Schema(description = "난이도")
     private final GameDifficulty difficulty;
-    
 }

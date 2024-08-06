@@ -18,16 +18,18 @@ public class Record {
     @Column(name = "record_id")
     private Long recordId;
 
-    private int playerId;
-    private int challengeId;
-    private int riddleId;
-    private int voiceId;
+    private Long playerId;
+    private Long challengeId;
+    private Long voiceId;
 
     @Enumerated(EnumType.STRING)
     private GameCategory category;
 
-    private boolean isCorrect;
+    private Boolean isCorrect;
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    private Double similarity;
+    private String inputText;
 }

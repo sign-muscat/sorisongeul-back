@@ -29,6 +29,7 @@ public class GameChallengeController {
 
     @GetMapping("/records")
     public ResponseEntity<List<SoundRecordResponse>> getRecords(@RequestParam Long challengeId) {
+        // TODO: 로그인 한 사용자 정보도 받아서 넘겨야 함
 
         List<SoundRecordResponse> records = gameChallengeService.getSoundRecords(challengeId);
 
@@ -37,7 +38,6 @@ public class GameChallengeController {
 
     @PostMapping("/result")
     public ResponseEntity<SoundResultResponse> getResult(@RequestBody SoundResultRequest answerRequest) {
-
         // TODO: 로그인 한 사용자 정보도 받아서 넘겨야 함
 
         SoundResultResponse result = gameChallengeService.getResult(answerRequest);

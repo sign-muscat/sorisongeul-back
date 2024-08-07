@@ -23,4 +23,6 @@ public class GameChallenge {
 
     @Enumerated(EnumType.STRING)
     private GameDifficulty difficulty;
+
+    private String answer;
 }

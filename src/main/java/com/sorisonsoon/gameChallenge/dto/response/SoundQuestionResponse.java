@@ -1,0 +1,12 @@
+package com.sorisonsoon.gameChallenge.dto.response;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public class SoundQuestionResponse {
+    private final Long challengeId;
+    private final String url;
+//    private final Boolean isCorrect;
+}

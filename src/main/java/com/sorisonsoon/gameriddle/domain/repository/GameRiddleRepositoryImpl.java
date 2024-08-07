@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-import static com.querydsl.core.types.ExpressionUtils.count;
 import static com.sorisonsoon.gameriddle.domain.entity.QGameRiddle.gameRiddle;
 import static com.sorisonsoon.gameriddle.domain.entity.QGameRiddleStep.gameRiddleStep;
 

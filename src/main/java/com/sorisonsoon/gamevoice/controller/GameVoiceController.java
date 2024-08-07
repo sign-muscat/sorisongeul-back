@@ -6,10 +6,15 @@ import com.sorisonsoon.gamevoice.dto.response.GameVoiceQuestionResponse;
 import com.sorisonsoon.gamevoice.service.GameVoiceService;
 import com.sorisonsoon.record.dto.request.RecordGameVoiceRequest;
 import com.sorisonsoon.record.dto.response.RecordGameVoiceResponse;
+import com.sorisonsoon.record.dto.response.RecordGameVoiceResponseList;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class GameVoiceController {
 
     private final GameVoiceService gameVoiceService;
+    private final List<RecordGameVoiceResponse> recordGameVoiceResponseList = new ArrayList<>();
 
     @GetMapping("/question/{difficulty}")
     public ResponseEntity<ApiResponse<?>> getGameVideoRandomQuestion(@PathVariable final GameDifficulty difficulty) {
@@ -31,6 +37,18 @@ public class GameVoiceController {
         final RecordGameVoiceResponse recordGameVoiceResponse = gameVoiceService.saveGameVoice(recordGameVoiceRequest);
 
         return ResponseEntity.ok(ApiResponse.success("플레이가 기록 되었습니다.", recordGameVoiceResponse));
+    }
+
+    @PostMapping("/checkList")
+    public ResponseEntity<ApiResponse<?>> gatCheckAnswerSentenceSimilarityList(@RequestBody @Valid RecordGameVoiceRequest recordGameVoiceRequest) {
+        System.out.println("컨트롤러의 보이스 아이디 : " + recordGameVoiceRequest);
+        final RecordGameVoiceResponse recordGameVoiceResponse = gameVoiceService.saveGameVoice(recordGameVoiceRequest);
+
+        recordGameVoiceResponseList.add(recordGameVoiceResponse);
+
+        RecordGameVoiceResponseList responseList = new RecordGameVoiceResponseList(recordGameVoiceResponseList);
+
+        return ResponseEntity.ok(ApiResponse.success("플레이가 기록 되었습니다.", responseList));
     }
 
 }

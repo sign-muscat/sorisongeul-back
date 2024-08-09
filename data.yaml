@@ -1,0 +1,30 @@
+names:
+- dog_1
+- dog_2
+- happy_1
+- happy_2
+- hello_1
+- hello_2
+- mosquito_1
+- mosquito_2
+- nice_to_meet_1
+- nice_to_meet_2
+- sad_1
+- sad_2
+- sorry_1
+- sorry_2
+- thanks_1
+- thanks_2
+- tree_1
+- tree_2
+- tree_3
+nc: 19
+roboflow:
+  license: CC BY 4.0
+  project: sign_test-quj7j
+  url: https://universe.roboflow.com/capstone-rc3ka/sign_test-quj7j/dataset/3
+  version: 3
+  workspace: capstone-rc3ka
+test: /content/sign_test-3/test/images
+train: /content/sign_test-3/train/images
+val: /content/sign_test-3/valid/images

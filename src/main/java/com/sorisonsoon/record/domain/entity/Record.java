@@ -3,13 +3,17 @@ package com.sorisonsoon.record.domain.entity;
 import com.sorisonsoon.common.domain.type.GameCategory;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
 @Table(name = "record")
+@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Record {
 
@@ -26,6 +30,10 @@ public class Record {
     private GameCategory category;
 
     private Boolean isCorrect;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+
     private Double similarity;
     private String inputText;
 

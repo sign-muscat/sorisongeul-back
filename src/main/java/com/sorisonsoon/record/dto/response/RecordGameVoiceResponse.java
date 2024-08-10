@@ -1,10 +1,13 @@
 package com.sorisonsoon.record.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sorisonsoon.common.domain.type.GameCategory;
 import com.sorisonsoon.record.domain.entity.Record;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Schema(description = "너목보 기록 응답 DTO")
 @Getter
@@ -26,6 +29,9 @@ public class RecordGameVoiceResponse {
     @Schema(description = "정답 유무")
     private final Boolean isCorrect;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private final LocalDateTime createdAt;
+
     @Schema(description = "유사도")
     private final Double similarity;
 
@@ -39,6 +45,7 @@ public class RecordGameVoiceResponse {
                 record.getVoiceId(),
                 record.getCategory(),
                 record.getIsCorrect(),
+                record.getCreatedAt(),
                 record.getSimilarity(),
                 record.getInputText()
         );

@@ -40,15 +40,9 @@ dependencies {
     /**
      * AI 의존성
      */
-    //implementation platform("org.springframework.ai:spring-ai-bom:1.0.0-SNAPSHOT")
     implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
     implementation 'org.springframework.ai:spring-ai-transformers-spring-boot-starter:'
-    //implementation 'ai.onnxruntime:onnxruntime:1.15.0'
-//    implementation 'org.springframework.experimental.ai:transformers-embedding:0.7.1-SNAPSHOT'
-//    implementation 'ai.djl:api:0.14.0'
-//    implementation 'ai.djl.huggingface:tokenizers:0.14.0'
-//    implementation 'ai.djl.onnxruntime:onnxruntime-engine:0.14.0'
-//    implementation 'org.apache.commons:commons-logging:1.2'
+
     /**
      * 유틸 리티 라이브 러리
      */

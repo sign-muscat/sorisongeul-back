@@ -23,6 +23,7 @@ public enum ExceptionCode {
     INVALID_PASSWORD(401, "비밀번호가 올바르지 않습니다."),
     INVALID_REFRESH_TOKEN(401, "리프레시 토큰이 유효하지 않습니다."),
     INVALID_EMAIL(401, "이메일 형식이 올바르지 않습니다."),
+    INVALID_GAME_VOICE_ID(401, "게임 문제 번호가 올바르지 않습니다."),
 
     ACCESS_DENIED(403, "허가 되지 않은 요청입니다."),
 

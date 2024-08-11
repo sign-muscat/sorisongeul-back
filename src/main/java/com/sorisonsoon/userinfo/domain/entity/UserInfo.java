@@ -16,6 +16,6 @@ public class UserInfo {
 
     private int level;
     private int experience;
-    private int userId;
+    private Long userId;
 
 }

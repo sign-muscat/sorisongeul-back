@@ -6,8 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class SoundQuestionResponse {
-    private final Long challengeId;
-    private final String url;
+public class SoundCorrectResponse {
+    private final Boolean isCorrect;
     private final GameDifficulty difficulty;
 }

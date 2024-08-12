@@ -4,9 +4,11 @@ import com.sorisonsoon.gameChallenge.domain.type.GameChallengeCategory;
 import com.sorisonsoon.common.domain.type.GameDifficulty;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
 @Table(name = "game_challenge")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GameChallenge {

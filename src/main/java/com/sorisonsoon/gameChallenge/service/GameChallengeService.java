@@ -1,15 +1,22 @@
 package com.sorisonsoon.gameChallenge.service;
 
 import com.sorisonsoon.common.domain.type.GameDifficulty;
+import com.sorisonsoon.gameChallenge.domain.entity.GameChallenge;
+import com.sorisonsoon.gameChallenge.domain.entity.GameChallengeSchedule;
+import com.sorisonsoon.gameChallenge.domain.repository.GameChallengeScheduleRepository;
 import com.sorisonsoon.gameChallenge.dto.request.SoundResultRequest;
+import com.sorisonsoon.gameChallenge.dto.response.SoundCorrectResponse;
 import com.sorisonsoon.gameChallenge.dto.response.SoundQuestionResponse;
 import com.sorisonsoon.gameChallenge.domain.repository.GameChallengeRepository;
 import com.sorisonsoon.gameChallenge.dto.response.SoundRecordResponse;
 import com.sorisonsoon.gameChallenge.dto.response.SoundResultResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -18,11 +25,28 @@ import java.util.List;
 public class GameChallengeService {
 
     private final GameChallengeRepository gameChallengeRepository;
+    private final GameChallengeScheduleRepository gameChallengeScheduleRepository;
+
+    // 매일 자정, 오늘의 문제 출제
+    @Scheduled(cron = "0 0 0 * * *")
+    public void scheduleDailyQuestion() {
+        GameChallenge challengeQuestion = gameChallengeRepository.getUnscheduledQuestion();
+
+        gameChallengeScheduleRepository.save(
+                new GameChallengeSchedule(
+                        challengeQuestion.getChallengeId()
+                )
+        );
+    }
 
     @Transactional(readOnly = true)
-    public SoundQuestionResponse getSoundQuestion(GameDifficulty difficulty) {
-        // TODO: 하루에 한 문제 제한 유무에 따라 로직 변동 가능성 (현재 문제 제한 X)
-        return gameChallengeRepository.getQuestionByDifficulty(difficulty).orElseThrow();
+    public SoundCorrectResponse checkCorrect(Long userId) {
+        return gameChallengeRepository.checkCorrect(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public SoundQuestionResponse getSoundQuestion() {
+        return gameChallengeRepository.getTodayQuestion().orElseThrow();
     }
 
     @Transactional(readOnly = true)

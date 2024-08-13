@@ -30,7 +30,10 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                     auth.requestMatchers(HttpMethod.GET,
                                         "/images/**", "/api/v1/find/**",
-                                        "/api/v1/notice/list", "/api/v1/community/list")
+                                        "/api/v1/notice/list", "/api/v1/community/list",
+                                        "/api/v1/sentence/game_start", "/api/v1/sign/game_start",
+                                        "/api/v1/voice/question"
+                                    )
                                             .permitAll();
                     auth.requestMatchers(HttpMethod.POST,
                                          "/api/v1/members/new/**", "/api/v1/members/check/**",
@@ -40,8 +43,10 @@ public class SecurityConfig {
 
                     auth.requestMatchers(HttpMethod.GET,
                                         "api/v1/friends/**", "/api/members/**",
-                                        "api/v1/sentence/**", "api/v1/sign/**")
-                                            .hasAnyAuthority("FREE_USER", "PREMIUM_USER", "ADMIN");
+                                        "api/v1/sentence/**", "api/v1/sign/**",
+                                        "api/v1/voice/**","api/v1/page/**"
+                                    ).hasAnyAuthority("FREE_USER", "PREMIUM_USER", "ADMIN");
+
                     auth.requestMatchers(HttpMethod.POST,
                                         "/api/v1/logout",
                                         "api/v1/friends/**", "/api/members/**",

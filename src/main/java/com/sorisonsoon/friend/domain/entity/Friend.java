@@ -18,8 +18,8 @@ public class Friend {
     @Column(name = "friend_id")
     private Long friendId;
 
-    private int toUser;
-    private int fromUser;
+    private Long toUser;
+    private Long fromUser;
 
     @CreatedDate
     private LocalDateTime createdAt;

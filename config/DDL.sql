@@ -141,7 +141,7 @@ CREATE TABLE `game_voice` (
 CREATE TABLE `game_riddle` (
                                 `riddle_id`         INT AUTO_INCREMENT                  NOT NULL COMMENT '맞수수 번호',
                                 `question`          VARCHAR(255)                        NOT NULL COMMENT '문제',
-                                `guide`             VARCHAR(255)                        NOT NULL COMMENT '동작틀',
+                                `video`             VARCHAR(255)                        NOT NULL COMMENT '영상',
                                 `category`          VARCHAR(15)                         NOT NULL COMMENT '분류',
                                 `difficulty`        VARCHAR(15)                         NOT NULL COMMENT '난이도',
                                 #PK
@@ -150,6 +150,20 @@ CREATE TABLE `game_riddle` (
                                     CONSTRAINT `game_riddle_CK1` CHECK (`category` IN ('DAILY_LIFE', 'EMOTION', 'ANIMALS_PLANTS', 'JOB', 'FOOD_CLOTHING_PLACE', 'ETC')),
                                     CONSTRAINT `game_riddle_CK2` CHECK (`difficulty` IN ('LEVEL_1', 'LEVEL_2', 'LEVEL_3'))
 ) COMMENT = '맞춰라 수수께끼';
+
+-- game_riddle_step 테이블
+create table game_riddle_step
+(
+    riddle_step_id  int auto_increment comment '맞수수 동작 번호',
+    riddle_id   int not null comment '맞수수 단어 번호',
+    step        int not null comment '동작 순서',
+    answer      varchar(255) not null comment '동작 가이드',
+    #PK
+    PRIMARY KEY (`riddle_step_id`),
+    #FK
+    FOREIGN KEY (`riddle_id`) REFERENCES `game_riddle` (`riddle_id`)
+)
+    comment '맞춰라 수수께끼 동작';
 
 -- Game_challenge 테이블
 CREATE TABLE `game_challenge` (
@@ -163,6 +177,16 @@ CREATE TABLE `game_challenge` (
                                     CONSTRAINT `game_challenge_CK1` CHECK (`category` IN ('DRAMAS', 'MOVIES', 'COMEDIES', 'CARTOONS', 'BOOKS', 'MEMES')),
                                     CONSTRAINT `game_challenge_CK2` CHECK (`difficulty` IN ('LEVEL_1', 'LEVEL_2', 'LEVEL_3'))
 ) COMMENT = '도전 소리 탐정';
+
+CREATE TABLE `game_challenge_schedule` (
+                                  `challenge_schedule_id`   INT AUTO_INCREMENT              NOT NULL COMMENT '출제 기록 번호',
+                                  `challenge_id`            INT                             NOT NULL COMMENT '도소탐 번호',
+                                  `schedule`                DATE DEFAULT CURRENT_TIMESTAMP  NOT NULL COMMENT '출제 날짜',
+                                  #PK
+                                  PRIMARY KEY (`challenge_schedule_id`),
+                                  #FK
+                                  FOREIGN KEY (`challenge_id`) REFERENCES `game_challenge` (`challenge_id`)
+) COMMENT = '도전 소리 탐정 출제 기록';
 
 -- Game_whisper 테이블
 CREATE TABLE `game_whisper` (
@@ -307,21 +331,35 @@ CREATE TABLE `record` (
                                 `record_id`         INT AUTO_INCREMENT                  NOT NULL COMMENT '기록 번호',
                                 `player_id`         INT                                 NOT NULL COMMENT '참가자',
                                 `challenge_id`      INT                                          COMMENT '도소탐 문제',
-                                `riddle_id`         INT                                          COMMENT '맞수수 문제',
                                 `voice_id`          INT                                          COMMENT '너목보 문제',
                                 `category`          VARCHAR(15)                         NOT NULL COMMENT '분류',
                                 `is_correct`        BOOLEAN                             NOT NULL COMMENT '정답 여부',
                                 `created_at`        DATETIME DEFAULT CURRENT_TIMESTAMP  NOT NULL COMMENT '플레이 일시',
+                                `similarity`        DOUBLE                              NOT NULL COMMENT '유사도',
                                 #PK
                                     PRIMARY KEY (`record_id`),
                                 #FK
                                     FOREIGN KEY (`player_id`) REFERENCES `users` (`user_id`),
                                     FOREIGN KEY (`challenge_id`) REFERENCES `game_challenge` (`challenge_id`),
-                                    FOREIGN KEY (`riddle_id`) REFERENCES `game_riddle` (`riddle_id`),
                                     FOREIGN KEY (`voice_id`) REFERENCES `game_voice` (`voice_id`),
                                 #CK
                                     CONSTRAINT `record_CK1` CHECK (`category` IN ('CHALLENGE', 'RIDDLE', 'VOICE'))
 ) COMMENT = '플레이 기록';
+
+-- RecordRiddle 테이블
+CREATE TABLE `record_riddle` (
+                          `record_id`         INT AUTO_INCREMENT                  NOT NULL COMMENT '기록 번호',
+                          `player_id`         INT                                 NOT NULL COMMENT '참가자',
+                          `riddle_id`         INT                                          COMMENT '문제 번호',
+                          `category`          VARCHAR(15)                         NOT NULL COMMENT '분류',
+                          `is_correct`        BOOLEAN                             NOT NULL COMMENT '정답 여부',
+                          `created_at`        DATETIME DEFAULT CURRENT_TIMESTAMP  NOT NULL COMMENT '플레이 일시',
+    #PK
+                          PRIMARY KEY (`record_id`),
+    #FK
+                          FOREIGN KEY (`player_id`) REFERENCES `users` (`user_id`),
+                          FOREIGN KEY (`riddle_id`) REFERENCES `game_riddle` (`riddle_id`)
+) COMMENT = '맞수수 플레이 기록';
 
 -- Setting 테이블
 CREATE TABLE `setting` (

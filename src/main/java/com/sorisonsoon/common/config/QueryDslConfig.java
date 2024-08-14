@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Configuration;
 public class QueryDslConfig {
 
     @Autowired
-    private EntityManager entityManager;
+    private EntityManager em;
 
     @Bean
     public JPAQueryFactory jpaQueryFactory() {
-        return new JPAQueryFactory(entityManager);
+        return new JPAQueryFactory(em);
     }
 }

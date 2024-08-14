@@ -59,4 +59,23 @@ public class FriendController {
         return ResponseEntity.created(URI.create("api/v1/friends-apply")).build();
     }
 
+    @DeleteMapping("/friends-apply/{friendId}")
+    public ResponseEntity<Void> cancelFriendApply(@PathVariable final Long friendId) {
+        // Test 데이터 @AuthenticationPrincipal
+        Long userId = 1L;
+
+        friendService.cancelFriendApply(userId, friendId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/friends/{friendId}")
+    public ResponseEntity<Void> deleteFriend(@PathVariable final Long friendId) {
+        // Test 데이터 @AuthenticationPrincipal
+        Long userId = 1L;
+
+        friendService.deleteFriend(userId, friendId);
+
+        return ResponseEntity.noContent().build();
+    }
 }

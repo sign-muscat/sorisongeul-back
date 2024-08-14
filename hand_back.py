@@ -1,6 +1,9 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Header
+from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from sqlalchemy import create_engine, Column, Integer, String, Enum, ForeignKey
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, Session, relationship
 import torch
 import torch.nn as nn
 from torchvision import transforms, models
@@ -8,13 +11,6 @@ from PIL import Image
 import io
 import yaml
 import logging
-from sqlalchemy import create_engine, Column, Integer, String, Enum, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session, relationship
-from random import choice
-from typing import List, Optional
-import uuid
-import os
 
 # 로깅 설정
 logging.basicConfig(level=logging.WARNING)
@@ -51,45 +47,13 @@ class GameRiddleStep(Base):
 # FastAPI 앱 생성
 app = FastAPI()
 
-# CORS 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 실제 배포 시 프론트엔드 도메인으로 제한
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# 세션 저장소
-game_sessions = {}
-
-# 세션 모델
-class GameSession(BaseModel):
-    session_id: str
-    riddle_id: int
-    current_step: int
-    total_steps: int
-
-# 응답 모델
-class GameStartResponse(BaseModel):
-    session_id: str
-    question: str
-    total_steps: int
-
-class PredictionResponse(BaseModel):
-    is_correct: bool
-    current_step: int
-    total_steps: int
-    feedback: str
-
-class QuestionSearchRequest(BaseModel):
-    question: str
-
-class SearchResponse(BaseModel):
-    video: str
-
-class RecognitionResponse(BaseModel):
-    video_url: str
 
 # 데이터베이스 의존성
 def get_db():
@@ -125,111 +89,76 @@ transform = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-# 게임 시작 엔드포인트
-@app.post("/api/v1/sign/game-start", response_model=GameStartResponse)
-async def game_start(db: Session = Depends(get_db)):
-    selected_difficulty = choice(["LEVEL_1", "LEVEL_2", "LEVEL_3"])
-    
-    riddles = db.query(GameRiddle).filter(GameRiddle.difficulty == selected_difficulty).all()
-    if not riddles:
-        raise HTTPException(status_code=404, detail="No riddle found for the selected difficulty.")
-    
-    selected_riddle = choice(riddles)
-    total_steps = db.query(GameRiddleStep).filter(GameRiddleStep.riddle_id == selected_riddle.riddle_id).count()
+# 요청 모델
+class PredictionRequest(BaseModel):
+    riddle_id: int
+    current_step: int
 
-    session_id = str(uuid.uuid4())
-    game_sessions[session_id] = GameSession(
-        session_id=session_id,
-        riddle_id=selected_riddle.riddle_id,
-        current_step=1,
-        total_steps=total_steps
-    )
-
-    return GameStartResponse(
-        session_id=session_id,
-        question=selected_riddle.question,
-        total_steps=total_steps
-    )
+# 예측 결과 모델
+class PredictionResponse(BaseModel):
+    is_correct: bool
+    current_step: int
+    total_steps: int
+    feedback: str
 
 # 이미지 예측 엔드포인트
+from fastapi import Form
+
 @app.post("/api/v1/sign/predict", response_model=PredictionResponse)
-async def predict_image(file: UploadFile = File(...), session_id: str = Header(...), db: Session = Depends(get_db)):
-    if session_id not in game_sessions:
-        raise HTTPException(status_code=400, detail="Invalid session ID")
-    
-    session = game_sessions[session_id]
-    current_step_before_prediction = session.current_step
-    
-    # 이미지 처리 및 예측
-    contents = await file.read()
-    image = Image.open(io.BytesIO(contents)).convert("RGB")
-    image = transform(image).unsqueeze(0).to(device)
+async def predict_image(
+    file: UploadFile = File(...), 
+    riddle_id: int = Form(...), 
+    current_step: int = Form(...), 
+    db: Session = Depends(get_db)
+):
+    try:
+        # 데이터베이스에서 현재 단계 정보 조회
+        current_step_obj = db.query(GameRiddleStep).filter(
+            GameRiddleStep.riddle_id == riddle_id,
+            GameRiddleStep.step == current_step
+        ).first()
 
-    with torch.no_grad():
-        outputs = model(image)
-        probabilities = torch.sigmoid(outputs)
-        max_prob, predicted_idx = torch.max(probabilities, 1)
-        predicted_label = class_names[predicted_idx.item()]
+        if not current_step_obj:
+            raise HTTPException(status_code=400, detail="Invalid riddle or step")
 
-    # 현재 단계의 정답 확인
-    current_step = db.query(GameRiddleStep).filter(
-        GameRiddleStep.riddle_id == session.riddle_id,
-        GameRiddleStep.step == session.current_step
-    ).first()
+        # 전체 단계 수 조회
+        total_steps = db.query(GameRiddleStep).filter(
+            GameRiddleStep.riddle_id == riddle_id
+        ).count()
 
-    if not current_step:
-        raise HTTPException(status_code=400, detail="Invalid game state")
+        # 이미지 처리 및 예측
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents)).convert("RGB")
+        image = transform(image).unsqueeze(0).to(device)
 
-    correct_label = f"{current_step.riddle.label}_{current_step.step}"
-    is_correct = (predicted_label == correct_label)
+        with torch.no_grad():
+            outputs = model(image)
+            probabilities = torch.sigmoid(outputs)
+            max_prob, predicted_idx = torch.max(probabilities, 1)
+            predicted_label = class_names[predicted_idx.item()]
 
-    feedback = "정답입니다!" if is_correct else "틀렸습니다. 다시 시도해보세요."
+        # 정답 확인
+        correct_label = f"{current_step_obj.riddle.label}_{current_step}"
+        is_correct = (predicted_label == correct_label)
 
-    if is_correct:
-        session.current_step += 1
-        if session.current_step > session.total_steps:
-            del game_sessions[session_id]
+        feedback = "정답입니다!" if is_correct else "틀렸습니다. 다시 시도해보세요."
+
+        next_step = current_step + 1 if is_correct else current_step
+
+        if next_step > total_steps:
             feedback = "모든 단계를 완료했습니다!"
 
-    return PredictionResponse(
-        is_correct=is_correct,
-        current_step=current_step_before_prediction,
-        total_steps=session.total_steps,
-        feedback=feedback
-    )
-
-@app.post("/question-search", response_model=SearchResponse)
-async def question_search(request: QuestionSearchRequest, db: Session = Depends(get_db)):
-    # DB에서 question과 일치하는 GameRiddle 검색
-    riddle = db.query(GameRiddle).filter(GameRiddle.question == request.question).first()
-    if riddle:
-        return SearchResponse(video=riddle.video)
-    else:
-        raise HTTPException(status_code=404, detail="Question not found in database")
-
-@app.post("/motion-search", response_model=RecognitionResponse)
-async def motion_search(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    contents = await file.read()
-    image = Image.open(io.BytesIO(contents)).convert("RGB")
+        return PredictionResponse(
+            is_correct=is_correct,
+            current_step=current_step,
+            total_steps=total_steps,
+            feedback=feedback
+        )
     
-    # 이미지 전처리
-    image = transform(image).unsqueeze(0).to(device)
+    except Exception as e:
+        logging.error(f"Error in predict_image: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-    # ResNet 모델로 이미지 분석
-    with torch.no_grad():
-        outputs = model(image)
-        probabilities = torch.sigmoid(outputs)
-        max_prob, predicted_idx = torch.max(probabilities, 1)
-        full_label = class_names[predicted_idx.item()]
-        
-    # '_'를 기준으로 라벨을 분리하고 첫 번째 부분만 사용
-    label = full_label.split('_')[0]
-    
-    # DB에서 해당 라벨에 대한 동영상 URL 검색
-    riddle = db.query(GameRiddle).filter(GameRiddle.label == label).first()
-    video_url = riddle.video if riddle else ""
-
-    return RecognitionResponse(video_url=video_url)
 
 if __name__ == "__main__":
     import uvicorn

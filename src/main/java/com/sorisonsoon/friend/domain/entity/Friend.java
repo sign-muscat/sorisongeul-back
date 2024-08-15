@@ -3,16 +3,20 @@ package com.sorisonsoon.friend.domain.entity;
 import com.sorisonsoon.friend.domain.type.FriendStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.SQLDelete;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "friend")
+@Getter
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE friend SET status = 'DELETED' WHERE friend_id = ?")
 public class Friend {
 
     @Id

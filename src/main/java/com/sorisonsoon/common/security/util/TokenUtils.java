@@ -186,12 +186,12 @@ public class TokenUtils {
         return claimsResolver.apply(claims);
     }
 
-    // 모든 클레임을 추출하는 메서드
+    // 모든 클레임을 추출
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(createSignature()).build().parseClaimsJws(token).getBody();
     }
 
-    // 토큰 생성 메서드
+    // 토큰 생성
     private String doCreateToken(String subject, Long expirationTime) {
         return Jwts.builder()
                 .setSubject(subject)

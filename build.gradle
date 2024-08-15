@@ -90,7 +90,7 @@ dependencies {
     /**
      * swagger ui 설정
      */
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
 }
 
 dependencyManagement {

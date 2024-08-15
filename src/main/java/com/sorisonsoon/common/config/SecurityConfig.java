@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                     auth.requestMatchers(HttpMethod.GET,
-                                        "/api/swagger-ui/**", "/api/v1/api-docs/**",
+                                        "/api/v1/swagger-ui/**", "/api/swagger-ui/**", "/api/v1/api-docs/**", "/api/v1",
                                         "/images/**", "/api/v1/community/list",
                                         "/api/v1/sentence/game_start", "/api/v1/sign/game_start", "/api/v1/voice/question"
                                     ).permitAll();

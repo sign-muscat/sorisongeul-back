@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -51,8 +52,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // Access Token이 만료된 경우
                 String refreshToken = request.getHeader("Refresh-Token");
                 if (refreshToken != null && tokenUtils.isValidToken(refreshToken, userDetails)) {
+                    // ROLE 정보 추출
+                    String role = userDetails.getAuthorities().stream()
+                            .map(grantedAuthority -> grantedAuthority.getAuthority())
+                            .collect(Collectors.joining());
                     // Refresh Token이 유효한 경우, 새로운 Access Token 발급
-                    String newAccessToken = tokenUtils.createAccessToken(userDetails);
+                    String newAccessToken = tokenUtils.createAccessToken(userDetails, role);
                     response.setHeader("Access-Token", newAccessToken);
                     // 인증 정보 갱신
                     UsernamePasswordAuthenticationToken authenticationToken =

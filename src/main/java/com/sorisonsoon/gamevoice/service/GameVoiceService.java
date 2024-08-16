@@ -80,7 +80,7 @@ public class GameVoiceService {
     }
 
     // 메서드
-    private Boolean isCorrectCheck (String origin_game_answer, String origin_input_text) {
+    public static Boolean isCorrectCheck (String origin_game_answer, String origin_input_text) {
         //공백 제거 및 대 소문자 무시 하는 문자열
         String game_answer = cleanString(origin_game_answer);
         String input_text = cleanString(origin_input_text);
@@ -88,7 +88,7 @@ public class GameVoiceService {
         return game_answer.equals(input_text);
     }
 
-    private String cleanString(String str) {
+    private static String cleanString(String str) {
         // 문자열에서 공백과 특수문자 제거, 소문자로 변환
         return str.replaceAll("[\\p{Punct}\\s]", "").toLowerCase();
     }

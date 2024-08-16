@@ -1,7 +1,11 @@
 package com.sorisonsoon.common.utils.sentenceSimilarity;
 
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.RealVector;
+
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.IntStream;
 
 public class MatrixUtils {
@@ -85,4 +89,22 @@ public class MatrixUtils {
         }
         return Arrays.stream(indices).mapToInt(Integer::intValue).toArray();
     }
+
+    public static Double cosineSimilarity(List<Double> vectorA, List<Double> vectorB) {
+        // List<Double>를 RealVector로 변환
+        RealVector vA = new ArrayRealVector(vectorA.stream().mapToDouble(Double::doubleValue).toArray());
+        RealVector vB = new ArrayRealVector(vectorB.stream().mapToDouble(Double::doubleValue).toArray());
+
+        // 코사인 유사도 계산
+        double dotProduct = vA.dotProduct(vB);
+        double magnitudeA = vA.getNorm();
+        double magnitudeB = vB.getNorm();
+
+        if (magnitudeA == 0 || magnitudeB == 0) {
+            return 0.0;
+        }
+
+        return dotProduct / (magnitudeA * magnitudeB);
+    }
+
 }

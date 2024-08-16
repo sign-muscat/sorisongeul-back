@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface GameChallengeRepositoryCustom {
     Optional<SoundQuestionResponse> getTodayQuestion();
 
-    List<SoundRecordResponse> getSoundRecords(Long challengeId);
+    List<SoundRecordResponse> getSoundRecords(Long userId, Long challengeId);
 
     GameChallenge getUnscheduledQuestion();
 

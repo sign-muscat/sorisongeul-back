@@ -35,6 +35,7 @@ public enum ExceptionCode {
     NOT_FOUND_POST(404, "게시글이 존재하지 않습니다."),
     NOT_FOUND_COMMENT(404, "댓글이 존재하지 않습니다."),
     NOT_FOUND_FRIEND(404, "해당 친구를 찾을 수 없습니다."),
+    NOT_FOUND_GAME_QUESTION(404, "해당하는 문제를 찾을 수 없습니다."),
 
     ALREADY_EXISTS_ID(409, "이미 존재하는 아이디입니다."),
     ALREADY_EXISTS_EMAIL(409, "이미 존재하는 이메일입니다."),

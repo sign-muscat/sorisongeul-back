@@ -40,29 +40,33 @@ public class Record {
 
     private Record(
             Long playerId,
-            Long voiceId,
+            Long gameId,
             GameCategory category,
             Boolean isCorrect,
             Double similarity,
             String inputText
     ) {
-
         this.playerId = playerId;
-        this.voiceId = voiceId;
         this.category = category;
         this.isCorrect = isCorrect;
         this.similarity = similarity;
         this.inputText = inputText;
+
+        if(category == GameCategory.CHALLENGE) {
+            this.challengeId = gameId;
+        } else if(category == GameCategory.VOICE) {
+            this.voiceId = gameId;
+        }
     }
 
 
     public static Record of(
-            Long playerId, Long voiceId, GameCategory category,
+            Long playerId, Long gameId, GameCategory category,
             Boolean isCorrect, Double similarity, String inputText
     ) {
         return new Record (
                 playerId,
-                voiceId,
+                gameId,
                 category,
                 isCorrect,
                 similarity,

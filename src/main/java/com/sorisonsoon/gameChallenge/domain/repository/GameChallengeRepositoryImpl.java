@@ -82,14 +82,17 @@ public class GameChallengeRepositoryImpl implements GameChallengeRepositoryCusto
     }
 
     @Override
-    public List<SoundRecordResponse> getSoundRecords(Long challengeId) {
+    public List<SoundRecordResponse> getSoundRecords(Long userId, Long challengeId) {
         return queryFactory
                 .select(Projections.constructor(SoundRecordResponse.class,
                         record.inputText,
                         record.similarity
                 ))
                 .from(record)
-                .where(record.challengeId.eq(challengeId))
+                .where(
+                        record.challengeId.eq(challengeId),
+                        record.playerId.eq(userId)
+                )
                 .orderBy(record.similarity.desc())
                 .fetch();
     }

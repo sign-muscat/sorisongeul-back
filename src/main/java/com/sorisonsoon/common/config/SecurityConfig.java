@@ -76,8 +76,8 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/v1/notice/**").hasAuthority("ADMIN");
                     auth.anyRequest().authenticated();
                 })
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(customAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandling -> {
                     exceptionHandling.accessDeniedHandler(jwtAccessDeniedHandler());
                     exceptionHandling.authenticationEntryPoint(jwtAuthenticationEntryPoint());

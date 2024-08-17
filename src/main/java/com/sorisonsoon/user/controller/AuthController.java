@@ -1,19 +1,25 @@
 package com.sorisonsoon.user.controller;
 
 
+import com.sorisonsoon.common.security.util.TokenUtils;
 import com.sorisonsoon.user.domain.type.CustomUser;
 import com.sorisonsoon.user.service.AuthService;
 import com.sorisonsoon.user.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "인증 관련 API [AuthController]")
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Tag(name = "인증 관련 API " ,description = "[AuthController]")
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -21,11 +27,56 @@ public class AuthController {
 
     private final UserService userService;
     private final AuthService authService;
+    private final AuthenticationManager authenticationManager;
+    private final TokenUtils tokenUtils;
+
+    /**
+     * 임시 로그인 요청
+     * [SwaggerUI 사용을 위한 임시임. 추후 삭제 예정. ] TODO: 추후 삭제(이미 필터에 코드는 있음)후 필터로 ㄱㄱ 할 예정.
+     */
+
+    @PostMapping("/login")
+    @Operation(summary = "로그인", description = "SwaggerUI 사용을 위한 임시 로그인")
+    public Map<String, String> login(@RequestBody Map<String, String> loginRequest) {
+        String id = loginRequest.get("id");
+        String password = loginRequest.get("password");
+
+        try {
+            // 인증 시도
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(id, password)
+            );
+
+            CustomUser customUser = (CustomUser) authentication.getPrincipal();
+
+            // ROLE 정보 추출
+            String role = customUser.getAuthorities().stream()
+                    .map(grantedAuthority -> grantedAuthority.getAuthority())
+                    .collect(Collectors.joining());
+
+            // AccessToken 및 RefreshToken 생성
+            String accessToken = tokenUtils.createAccessToken(customUser, role);
+            String refreshToken = tokenUtils.createRefreshToken();
+
+            // RefreshToken 저장
+            authService.updateRefreshToken(customUser.getUsername(), refreshToken);
+
+            // 토큰 반환
+            return Map.of(
+                    "accessToken", accessToken,
+                    "refreshToken", refreshToken
+            );
+
+        } catch (AuthenticationException e) {
+            throw new RuntimeException("Invalid credentials");
+        }
+    }
 
     /**
      * 토큰 재발급
      */
     @GetMapping("/token/issue")
+    @Operation(summary = "토큰 재발급", description = "토큰 재 발급용 API")
     public ResponseEntity<?> issueToken(@RequestHeader("Refresh-Token") String refreshToken,
                                         @AuthenticationPrincipal CustomUser loginUser) {
 

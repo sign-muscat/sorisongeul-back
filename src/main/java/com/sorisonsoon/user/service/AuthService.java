@@ -2,6 +2,8 @@ package com.sorisonsoon.user.service;
 
 
 import com.sorisonsoon.common.exception.AuthException;
+import com.sorisonsoon.common.exception.NotFoundException;
+import com.sorisonsoon.common.exception.type.ExceptionCode;
 import com.sorisonsoon.common.security.dto.LoginDto;
 import com.sorisonsoon.common.security.dto.TokenDto;
 import com.sorisonsoon.common.security.util.TokenUtils;
@@ -9,6 +11,7 @@ import com.sorisonsoon.user.domain.entity.User;
 import com.sorisonsoon.user.domain.repository.UserRepository;
 import com.sorisonsoon.user.domain.type.CustomUser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,9 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.sorisonsoon.common.exception.type.ExceptionCode.INVALID_REFRESH_TOKEN;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService implements UserDetailsService {
@@ -31,14 +36,21 @@ public class AuthService implements UserDetailsService {
     @Override
     public CustomUser loadUserByUsername(String id) throws UsernameNotFoundException {
         //return null;
+        log.debug("Loading user with ID: {}", id);  // 로그 추가
         return userRepository.findById(id)
-                .map(user -> new CustomUser(
-                        user.getUserId(),
-                        user.getId(),
-                        user.getPassword(),
-                        user.getRole()
-                ))
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
+                .map(user -> {
+                    log.debug("User found: {}", user);  // 로그 추가
+                    return new CustomUser(
+                            user.getUserId(),
+                            user.getId(),
+                            user.getPassword(),
+                            user.getRole()
+                    );
+                })
+                .orElseThrow(() -> {
+                    log.debug("User not found with ID: {}", id);  // 로그 추가
+                    return new UsernameNotFoundException("User not found with id: " + id);
+                });
     }
 
     /**
@@ -64,7 +76,11 @@ public class AuthService implements UserDetailsService {
             throw new AuthException(INVALID_REFRESH_TOKEN);
         }
 
-        return tokenUtils.createAccessToken(customUser);
+        String role = customUser.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .collect(Collectors.joining());
+
+        return tokenUtils.createAccessToken(customUser, role);
     }
 
     /**
@@ -77,12 +93,27 @@ public class AuthService implements UserDetailsService {
         LoginDto loginDto = LoginDto.from(user);
         CustomUser customUser = loginDto.toCustomUser();
 
+        String role = customUser.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .collect(Collectors.joining());
+
         String reIssuedRefreshToken = tokenUtils.createRefreshToken();
-        String reIssuedAccessToken = tokenUtils.createAccessToken(customUser);
+        String reIssuedAccessToken = tokenUtils.createAccessToken(customUser, role);
 
         user.updateRefreshToken(reIssuedRefreshToken);
 
         return TokenDto.of(reIssuedAccessToken, reIssuedRefreshToken);
+    }
+
+    /**
+     * RefreshToken 수정
+     */
+    @Transactional
+    public void updateRefreshToken(String id, String refreshToken) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_USER));
+        user.updateRefreshToken(refreshToken);
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.sorisonsoon.user.controller;
 
 
+import com.sorisonsoon.common.dto.response.ApiResponse;
 import com.sorisonsoon.common.security.util.TokenUtils;
 import com.sorisonsoon.user.domain.type.CustomUser;
 import com.sorisonsoon.user.service.AuthService;
@@ -90,6 +91,18 @@ public class AuthController {
         return ResponseEntity.noContent()
                 .header("Access-Token", ReIssuedAccessToken)
                 .build();
+    }
+
+    /**
+     * 로그아웃
+     *
+     * @param loginUser 로그인 정보
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<?>> logout(@AuthenticationPrincipal CustomUser loginUser) {
+
+        authService.updateRefreshToken(loginUser.getUsername(), null);
+        return ResponseEntity.ok(ApiResponse.success("로그아웃이 완료되었습니다."));
     }
 
 

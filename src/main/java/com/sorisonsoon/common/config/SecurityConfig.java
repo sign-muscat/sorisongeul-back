@@ -56,7 +56,7 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.POST,
                                          "/api/v1/login", "/api/v1/token/issue",
                                          "/api/v1/users/new", "/api/v1/users/mailConfirm", "/api/v1/users/verifyCode",
-                                         "/api/v1/verify/**").permitAll();
+                                         "/api/v1/verify/**", "/api/v1/email/**").permitAll();
 
                     auth.requestMatchers(HttpMethod.GET,
                                         "/api/v1/search/**",

@@ -99,6 +99,7 @@ public class AuthController {
      * @param loginUser 로그인 정보
      */
     @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "로그아웃 API")
     public ResponseEntity<ApiResponse<?>> logout(@AuthenticationPrincipal CustomUser loginUser) {
 
         authService.updateRefreshToken(loginUser.getUsername(), null);

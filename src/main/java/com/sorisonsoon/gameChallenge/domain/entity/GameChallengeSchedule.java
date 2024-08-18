@@ -21,7 +21,11 @@ public class GameChallengeSchedule {
 
     private LocalDate schedule;
 
-    public GameChallengeSchedule(Long challengeId) {
+    private GameChallengeSchedule(Long challengeId) {
         this.challengeId = challengeId;
+    }
+
+    public static GameChallengeSchedule of(Long challengeId) {
+        return new GameChallengeSchedule(challengeId);
     }
 }

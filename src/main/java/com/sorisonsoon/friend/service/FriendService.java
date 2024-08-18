@@ -1,9 +1,12 @@
 package com.sorisonsoon.friend.service;
 
 import com.sorisonsoon.common.exception.BadRequestException;
+import com.sorisonsoon.common.exception.NotFoundException;
 import com.sorisonsoon.common.exception.type.ExceptionCode;
+import com.sorisonsoon.friend.domain.entity.Friend;
 import com.sorisonsoon.friend.domain.repository.FriendRepository;
 import com.sorisonsoon.friend.domain.type.ApplyType;
+import com.sorisonsoon.friend.domain.type.FriendStatus;
 import com.sorisonsoon.friend.dto.response.FriendApplyResponse;
 import com.sorisonsoon.friend.dto.response.FriendResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,5 +35,36 @@ public class FriendService {
             return friendRepository.getFriendAppliesTo(userId);
         else
             throw new BadRequestException(ExceptionCode.INVALID_APPLY_TYPE);
+    }
+
+    public void save(Long fromUser, Long toUser) {
+        final Friend newFriend = Friend.of(fromUser, toUser);
+
+        friendRepository.save(newFriend);
+    }
+
+    public void modify(Long userId, Long friendId, FriendStatus status) {
+        Friend friend = friendRepository.findByFriendIdAndToUserAndStatus(friendId, userId, FriendStatus.APPLIED)
+                .orElseThrow(() -> new BadRequestException(ExceptionCode.ACCESS_DENIED));
+
+        friend.updateStatus(status);
+    }
+
+    public void cancelFriendApply(Long userId, Long friendId) {
+        Friend friend = friendRepository.findByFriendIdAndFromUserAndStatus(friendId, userId, FriendStatus.APPLIED)
+                .orElseThrow(() -> new BadRequestException(ExceptionCode.ACCESS_DENIED));
+
+        friend.updateStatus(FriendStatus.CANCELED);
+    }
+
+    public void deleteFriend(Long userId, Long friendId) {
+        Friend friend = friendRepository.findByFriendIdAndStatus(friendId, FriendStatus.ACCEPTED)
+                .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_FRIEND));
+
+        if(!friend.getFromUser().equals(userId) && !friend.getToUser().equals(userId)) {
+            throw new BadRequestException(ExceptionCode.ACCESS_DENIED);
+        }
+
+        friendRepository.delete(friend);
     }
 }

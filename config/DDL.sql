@@ -62,7 +62,7 @@ CREATE TABLE `friend` (
                                     FOREIGN KEY (`to_user`) REFERENCES `users` (`user_id`),
                                     FOREIGN KEY (`from_user`) REFERENCES `users` (`user_id`),
                                 #CK
-                                    CONSTRAINT `friend_CK1` CHECK (`status` IN ('APPLIED', 'ACCEPTED', 'REJECTED', 'DELETED'))
+                                    CONSTRAINT `friend_CK1` CHECK (`status` IN ('APPLIED', 'ACCEPTED', 'REJECTED', 'CANCELED', 'DELETED'))
 ) COMMENT = '친구';
 
 -- Notice 테이블

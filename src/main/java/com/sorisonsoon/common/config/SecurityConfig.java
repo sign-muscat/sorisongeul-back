@@ -4,6 +4,8 @@ import com.sorisonsoon.common.security.filter.CustomAuthenticationFilter;
 import com.sorisonsoon.common.security.filter.JwtAuthenticationFilter;
 import com.sorisonsoon.common.security.hadler.JwtAccessDeniedHandler;
 import com.sorisonsoon.common.security.hadler.JwtAuthenticationEntryPoint;
+import com.sorisonsoon.common.security.hadler.LoginFailureHandler;
+import com.sorisonsoon.common.security.hadler.LoginSuccessHandler;
 import com.sorisonsoon.common.security.util.TokenUtils;
 import com.sorisonsoon.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -48,8 +50,8 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                     auth.requestMatchers(HttpMethod.GET,
                                         "/api/v1/swagger-ui/**", "/api/swagger-ui/**", "/api/v1/api-docs/**", "/api/v1",
-                                        "/images/**", "/api/v1/community/list",
-                                        "/api/v1/sentence/game_start", "/api/v1/sign/game_start", "/api/v1/voice/question"
+                                        "/images/**", "/api/v1/community/list",//"/api/v1/token/issue",
+                                        "/api/v1/sentence/game_start", "/api/v1/sign/game_start"//, "/api/v1/voice/question"
                                     ).permitAll();
                     auth.requestMatchers(HttpMethod.POST,
                                          "/api/v1/login", "/api/v1/token/issue",
@@ -91,8 +93,8 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         /* TODO :: 추후 설정 */
-//        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000/"));
-        corsConfiguration.setAllowedOrigins(List.of("*"));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000/"));
+//        corsConfiguration.setAllowedOrigins(List.of("*"));
         corsConfiguration.setAllowedMethods(Arrays.asList("GET", "PUT", "POST", "DELETE"));
         corsConfiguration.setAllowedHeaders(Arrays.asList("Access-Control-Allow-Origin",
                 "Access-Control-Allow-Headers",
@@ -121,6 +123,8 @@ public class SecurityConfig {
 
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter();
         customAuthenticationFilter.setAuthenticationManager(authenticationManager());
+        customAuthenticationFilter.setAuthenticationSuccessHandler(loginSuccessHandler());
+        customAuthenticationFilter.setAuthenticationFailureHandler(loginFailureHandler());
 
         return customAuthenticationFilter;
     }
@@ -138,6 +142,16 @@ public class SecurityConfig {
     @Bean
     JwtAccessDeniedHandler jwtAccessDeniedHandler() {
         return new JwtAccessDeniedHandler();
+    }
+
+    @Bean
+    LoginSuccessHandler loginSuccessHandler() {
+        return new LoginSuccessHandler(authService, tokenUtils);
+    }
+
+    @Bean
+    LoginFailureHandler loginFailureHandler () {
+        return new LoginFailureHandler();
     }
 
 }

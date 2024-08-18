@@ -110,10 +110,11 @@ public class AuthService implements UserDetailsService {
      */
     @Transactional
     public void updateRefreshToken(String id, String refreshToken) {
-
+        log.info("사용자 {}의 리프레시 토큰을 업데이트함", id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_USER));
         user.updateRefreshToken(refreshToken);
+        log.info("사용자 {}의 리프레시 토큰이 업데이트됨.", id);
     }
 
     /**

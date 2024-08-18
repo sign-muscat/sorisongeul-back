@@ -33,6 +33,9 @@ public class AuthController {
     /**
      * 임시 로그인 요청
      * [SwaggerUI 사용을 위한 임시임. 추후 삭제 예정. ] TODO: 추후 삭제(이미 필터에 코드는 있음)후 필터로 ㄱㄱ 할 예정.
+     *
+     * @pram id
+     * @pram password
      */
 
     @PostMapping("/login")
@@ -74,6 +77,8 @@ public class AuthController {
 
     /**
      * 토큰 재발급
+     *
+     * @param refreshToken
      */
     @GetMapping("/token/issue")
     @Operation(summary = "토큰 재발급", description = "토큰 재 발급용 API")
@@ -86,10 +91,6 @@ public class AuthController {
                 .header("Access-Token", ReIssuedAccessToken)
                 .build();
     }
-
-
-
-
 
 
 }

@@ -45,6 +45,6 @@ public enum ExceptionCode {
     FAIL_TO_EMBEDDING_MODEL(500, "모델 임베딩에 실패하였습니다.");
 
     private final int code;
-
     private final String message;
+
 }

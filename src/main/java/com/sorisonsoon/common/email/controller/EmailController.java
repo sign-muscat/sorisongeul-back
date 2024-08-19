@@ -2,6 +2,7 @@ package com.sorisonsoon.common.email.controller;
 
 import com.sorisonsoon.common.dto.response.ApiResponse;
 import com.sorisonsoon.common.email.service.EmailService;
+import com.sorisonsoon.common.email.util.EmailValidator;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmailController {
 
     private final EmailService emailService;
+    private final EmailValidator emailValidator;
 
     /**
      * 인증 번호 전송
@@ -23,6 +25,10 @@ public class EmailController {
      */
     @PostMapping("/email/send")
     public ResponseEntity<ApiResponse<?>> send(String email) throws Exception {
+
+        if (!EmailValidator.isValid(email)) {
+            return ResponseEntity.badRequest().body(ApiResponse.fail("유효하지 않은 이메일 형식입니다."));
+        }
 
         String authCode = emailService.generateAuthCode();
         String token = emailService.encryptToken(email, authCode);

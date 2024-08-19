@@ -7,6 +7,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sorisonsoon.friend.domain.type.FriendStatus;
 import com.sorisonsoon.friend.dto.response.FriendApplyResponse;
 import com.sorisonsoon.friend.dto.response.FriendResponse;
+import com.sorisonsoon.friend.dto.response.RecommendFriendResponse;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -70,6 +71,21 @@ public class FriendRepositoryImpl implements FriendRepositoryCustom {
                 .from(friend)
                 .join(user).on(user.userId.eq(friend.fromUser))
                 .where(friend.toUser.eq(userId).and(friend.status.eq(FriendStatus.APPLIED)))
+                .fetch();
+    }
+
+    @Override
+    public List<RecommendFriendResponse> getRecommendedFriends(List<Long> recommends) {
+        return queryFactory
+                .select(Projections.constructor(RecommendFriendResponse.class,
+                        user.userId,
+                        user.nickname,
+                        user.profileImage,
+                        userInfo.level
+                ))
+                .from(user)
+                .leftJoin(userInfo).on(user.userId.eq(userInfo.userId))
+                .where(user.userId.in(recommends))
                 .fetch();
     }
 }

@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findById(String id);
-
+    Optional<User> findByEmail(String email);
     Optional<User> findByRefreshToken(String refreshToken);
 
     @Query("SELECT r.refreshToken FROM User r WHERE r.id = :id")

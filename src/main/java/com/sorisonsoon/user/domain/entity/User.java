@@ -73,6 +73,10 @@ public class User {
         );
     }
 
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }

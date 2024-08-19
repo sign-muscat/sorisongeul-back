@@ -2,6 +2,7 @@ package com.sorisonsoon.user.service;
 
 
 import com.sorisonsoon.common.exception.AuthException;
+import com.sorisonsoon.common.exception.BadRequestException;
 import com.sorisonsoon.common.exception.NotFoundException;
 import com.sorisonsoon.common.exception.type.ExceptionCode;
 import com.sorisonsoon.common.security.dto.LoginDto;
@@ -10,6 +11,7 @@ import com.sorisonsoon.common.security.util.TokenUtils;
 import com.sorisonsoon.user.domain.entity.User;
 import com.sorisonsoon.user.domain.repository.UserRepository;
 import com.sorisonsoon.user.domain.type.CustomUser;
+import com.sorisonsoon.user.dto.request.ResetPasswordRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,7 @@ public class AuthService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final TokenUtils tokenUtils;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public CustomUser loadUserByUsername(String id) throws UsernameNotFoundException {
@@ -134,6 +138,23 @@ public class AuthService implements UserDetailsService {
                 "id", loginDto.getId(),
                 "role", loginDto.getRole()
         );
+    }
+
+    public void resetPassword(String email, ResetPasswordRequest resetPasswordRequest) {
+
+        final User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_USER));
+
+        if (!resetPasswordRequest.getNewPassword().equals(resetPasswordRequest.getConfirmPassword())) {
+            throw new BadRequestException("새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
+        }
+        user.updatePassword(encode(resetPasswordRequest.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    private String encode(String password) {
+
+        return passwordEncoder.encode(password);
     }
 
 }

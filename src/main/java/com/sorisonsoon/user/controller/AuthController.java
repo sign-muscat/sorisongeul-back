@@ -4,10 +4,11 @@ package com.sorisonsoon.user.controller;
 import com.sorisonsoon.common.dto.response.ApiResponse;
 import com.sorisonsoon.common.security.util.TokenUtils;
 import com.sorisonsoon.user.domain.type.CustomUser;
+import com.sorisonsoon.user.dto.request.ResetPasswordRequest;
 import com.sorisonsoon.user.service.AuthService;
-import com.sorisonsoon.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,7 +27,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
     private final AuthService authService;
     private final AuthenticationManager authenticationManager;
     private final TokenUtils tokenUtils;
@@ -35,8 +35,7 @@ public class AuthController {
      * 임시 로그인 요청
      * [SwaggerUI 사용을 위한 임시임. 추후 삭제 예정. ] TODO: 추후 삭제(이미 필터에 코드는 있음)후 필터로 ㄱㄱ 할 예정.
      *
-     * @pram id
-     * @pram password
+     * @param loginRequest
      */
 
     @PostMapping("/login")
@@ -92,6 +91,21 @@ public class AuthController {
                 .header("Access-Token", ReIssuedAccessToken)
                 .build();
     }
+
+    /**
+     * 비밀번호 재설정
+     *
+     * @param email    이메일
+     * @param resetPasswordRequest 비밀번호
+     */
+    @PostMapping("/verify/password")
+    @Operation(summary = "비밀번호 재설정", description = "비밀번호 재 설정용 API")
+    public ResponseEntity<ApiResponse<?>> resetPassword(String email, @RequestBody @Valid ResetPasswordRequest resetPasswordRequest) {
+
+        authService.resetPassword(email, resetPasswordRequest);
+        return ResponseEntity.ok(ApiResponse.success("비밀번호 변경이 완료되었습니다."));
+    }
+
 
     /**
      * 로그아웃

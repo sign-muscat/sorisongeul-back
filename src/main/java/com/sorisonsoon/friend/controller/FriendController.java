@@ -4,6 +4,7 @@ import com.sorisonsoon.friend.domain.type.ApplyType;
 import com.sorisonsoon.friend.domain.type.FriendStatus;
 import com.sorisonsoon.friend.dto.response.FriendApplyResponse;
 import com.sorisonsoon.friend.dto.response.FriendResponse;
+import com.sorisonsoon.friend.dto.response.RecommendFriendResponse;
 import com.sorisonsoon.friend.service.FriendService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -77,5 +78,15 @@ public class FriendController {
         friendService.deleteFriend(userId, friendId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/friends/recommend")
+    public ResponseEntity<List<RecommendFriendResponse>> getRecommendations() {
+        // Test 데이터 @AuthenticationPrincipal
+        Long userId = 1L;
+
+        List<RecommendFriendResponse> result = friendService.getRecommendedFriends(userId);
+
+        return ResponseEntity.ok(result);
     }
 }

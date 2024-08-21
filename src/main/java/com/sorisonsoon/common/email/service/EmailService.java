@@ -1,5 +1,8 @@
 package com.sorisonsoon.common.email.service;
 
+import com.sorisonsoon.common.exception.NotFoundException;
+import com.sorisonsoon.common.exception.type.ExceptionCode;
+import com.sorisonsoon.user.domain.repository.UserRepository;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +23,7 @@ import java.util.UUID;
 public class EmailService {
 
     private final JavaMailSender javaMailSender;
+    private final UserRepository userRepository;
 
     @Value("${spring.mail.username}")
     private String SENDER_EMAIL;
@@ -73,6 +77,7 @@ public class EmailService {
     }
 
     public void verifyToken(String token, String email, String code) {
+
         // 토큰에서 SALT와 암호화된 데이터를 분리
         String[] tokenParts = token.split(":");
         String salt = tokenParts[0];
@@ -94,6 +99,11 @@ public class EmailService {
         if (!email.equals(decryptedEmail) || !code.equals(decryptedCode)) {
             throw new IllegalArgumentException("인증 번호가 올바르지 않습니다.");
         }
+
+        userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_USER.getMessage()));
+
+
     }
 }
 

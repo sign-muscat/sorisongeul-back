@@ -45,8 +45,9 @@ public class TokenUtils {
 
 
     // Refresh Token 생성
-    public String createRefreshToken() {
+    public String createRefreshToken(UserDetails userDetails) {
         return Jwts.builder()
+                .setSubject(userDetails.getUsername())
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
                 .signWith(createSignature(), SignatureAlgorithm.HS512)
                 .compact();

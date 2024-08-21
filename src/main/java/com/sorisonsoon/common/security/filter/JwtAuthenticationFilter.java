@@ -26,45 +26,51 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        final String requestTokenHeader = request.getHeader("Authorization");
+        final String accessToken = TokenUtils.getToken(request.getHeader("Authorization")); // 기존 방식
+        final String refreshToken = TokenUtils.getToken(request.getHeader("Refresh-Token")); // 추가된 부분
+
+        System.out.println("Access Token: " + accessToken);
+        System.out.println("Refresh Token: " + refreshToken);
+
         String username = null;
         String jwtToken = null;
 
-        // JWT 토큰이 있는지 확인하고, 있다면 "Bearer " 접두사를 제거
-        if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
-            jwtToken = TokenUtils.getToken(requestTokenHeader);
+        if (accessToken != null) {
+            jwtToken = accessToken;
             try {
                 username = tokenUtils.getUsernameFromToken(jwtToken);
+                System.out.println("추출된 회원 이름! : " + username);
             } catch (Exception e) {
-                System.out.println("JWT Token is invalid or expired: " + e.getMessage());
+                System.out.println("JWT 토큰이 유효하지 않거나 만료되었습니다.: " + e.getMessage());
             }
         }
 
-        // 토큰이 유효하고 인증되지 않은 상태라면, 사용자 정보 설정
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.authService.loadUserByUsername(username);
+
             if (tokenUtils.isValidToken(jwtToken, userDetails)) {
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            } else {
-                // Access Token이 만료된 경우
-                String refreshToken = request.getHeader("Refresh-Token");
-                if (refreshToken != null && tokenUtils.isValidToken(refreshToken, userDetails)) {
-                    // ROLE 정보 추출
-                    String role = userDetails.getAuthorities().stream()
-                            .map(grantedAuthority -> grantedAuthority.getAuthority())
-                            .collect(Collectors.joining());
-                    // Refresh Token이 유효한 경우, 새로운 Access Token 발급
-                    String newAccessToken = tokenUtils.createAccessToken(userDetails, role);
-                    response.setHeader("Access-Token", newAccessToken);
-                    // 인증 정보 갱신
-                    UsernamePasswordAuthenticationToken authenticationToken =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                }
+                System.out.println("인증 성공한 회원! : " + username);
+            } else if (refreshToken != null && tokenUtils.isValidToken(refreshToken, userDetails)) {
+                // Refresh Token이 유효하면 새로운 Access Token을 발급
+                String role = userDetails.getAuthorities().stream()
+                        .map(grantedAuthority -> grantedAuthority.getAuthority())
+                        .collect(Collectors.joining());
+
+                String newAccessToken = tokenUtils.createAccessToken(userDetails, role);
+                response.setHeader("Access-Token", newAccessToken);
+
+                // 새로운 인증 정보를 SecurityContext에 저장
+                UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                System.out.println("회원에게 새로 발급된 엑세스 토큰! : " + username);
+            }else {
+                System.out.println("토큰 검증 실패 회원 정보  ㅠㅠ : " + username);
             }
         }
 

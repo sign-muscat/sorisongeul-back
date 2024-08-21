@@ -70,13 +70,9 @@ public class AuthService implements UserDetailsService {
     /**
      * AccessToken 발급
      */
-    public String issueToken(String refreshToken, String id) {
+    public String issueToken(String refreshToken, CustomUser customUser) {
 
-        final User user = findByRefreshToken(refreshToken);
-        LoginDto loginDto = LoginDto.from(user);
-        CustomUser customUser = loginDto.toCustomUser();
-
-        if (!tokenUtils.isValidToken(refreshToken, loadUserByUsername(id))) {
+        if (!tokenUtils.isValidToken(refreshToken, customUser)) {
             throw new AuthException(INVALID_REFRESH_TOKEN);
         }
 
@@ -101,7 +97,7 @@ public class AuthService implements UserDetailsService {
                 .map(grantedAuthority -> grantedAuthority.getAuthority())
                 .collect(Collectors.joining());
 
-        String reIssuedRefreshToken = tokenUtils.createRefreshToken();
+        String reIssuedRefreshToken = tokenUtils.createRefreshToken(customUser);
         String reIssuedAccessToken = tokenUtils.createAccessToken(customUser, role);
 
         user.updateRefreshToken(reIssuedRefreshToken);

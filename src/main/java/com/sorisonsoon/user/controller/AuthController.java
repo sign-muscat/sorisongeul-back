@@ -2,7 +2,9 @@ package com.sorisonsoon.user.controller;
 
 
 import com.sorisonsoon.common.dto.response.ApiResponse;
+import com.sorisonsoon.common.security.dto.LoginDto;
 import com.sorisonsoon.common.security.util.TokenUtils;
+import com.sorisonsoon.user.domain.entity.User;
 import com.sorisonsoon.user.domain.type.CustomUser;
 import com.sorisonsoon.user.dto.request.ResetPasswordRequest;
 import com.sorisonsoon.user.service.AuthService;
@@ -59,7 +61,7 @@ public class AuthController {
 
             // AccessToken 및 RefreshToken 생성
             String accessToken = tokenUtils.createAccessToken(customUser, role);
-            String refreshToken = tokenUtils.createRefreshToken();
+            String refreshToken = tokenUtils.createRefreshToken(customUser);
 
             // RefreshToken 저장
             authService.updateRefreshToken(customUser.getUsername(), refreshToken);
@@ -80,16 +82,23 @@ public class AuthController {
      *
      * @param refreshToken
      */
-    @GetMapping("/token/issue")
+    @PostMapping("/token/issue")
     @Operation(summary = "토큰 재발급", description = "토큰 재 발급용 API")
-    public ResponseEntity<?> issueToken(@RequestHeader("Refresh-Token") String refreshToken,
-                                        @AuthenticationPrincipal CustomUser loginUser) {
+    public ResponseEntity<?> issueToken(@RequestHeader("Refresh-Token") String refreshToken) {
 
-        String ReIssuedAccessToken = authService.issueToken(refreshToken, loginUser.getUsername());
+        User user = authService.findByRefreshToken(refreshToken);
+        LoginDto loginDto = LoginDto.from(user);
+        CustomUser customUser = loginDto.toCustomUser();
 
-        return ResponseEntity.noContent()
-                .header("Access-Token", ReIssuedAccessToken)
-                .build();
+        if (user != null && tokenUtils.isValidToken(refreshToken, customUser)) {
+            String ReIssuedAccessToken = authService.issueToken(refreshToken, customUser);
+
+            return ResponseEntity.noContent()
+                    .header("Access-Token", ReIssuedAccessToken)
+                    .build();
+        } else {
+            return ResponseEntity.badRequest().body(ApiResponse.fail("유효하지 않은 리프레시 토큰입니다."));
+        }
     }
 
     /**

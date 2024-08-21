@@ -34,7 +34,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         // AccessToken 생성 시 ROLE도 포함
         String accessToken = tokenUtils.createAccessToken(customUser, role);
-        String refreshToken = tokenUtils.createRefreshToken();
+        String refreshToken = tokenUtils.createRefreshToken(customUser);
 
         log.info("리프레시 토큰을 업데이트합니다: 사용자 ID = {}", customUser.getUsername());
         authService.updateRefreshToken(customUser.getUsername(), refreshToken);

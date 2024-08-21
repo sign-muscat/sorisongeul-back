@@ -1,16 +1,15 @@
 package com.sorisonsoon.interest.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
 @Table(name = "interests")
 @Data
 @Builder
@@ -23,6 +22,6 @@ public class Interest {
     private Long interestId;
 
     private Long userId;
-
+  
     private String keyword;
 }

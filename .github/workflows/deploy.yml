@@ -79,5 +79,5 @@ jobs:
             sudo docker stop sorisonsoon-spring
             sudo docker rm sorisonsoon-spring
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
-            sudo docker run --name sorisonsoon-spring -d -p 80:8001 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
+            sudo docker run --name sorisonsoon-spring -d -p 8080:8080 -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
             sudo docker image prune -f

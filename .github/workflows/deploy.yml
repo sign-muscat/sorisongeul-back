@@ -58,3 +58,20 @@ jobs:
           docker build -f dockerfile -t ${{ secrets.DOCKER_REPOSITORY }} .
           docker tag  ${{ secrets.DOCKER_REPOSITORY }}:latest ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
+
+
+      # ssh 접속 및 명령어로 기존 컨테이너를 내리고, 이미지를 업데이트해 배포한다.
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        id: deploy
+        with:
+          host: ${{ secrets.EC2_HOST_DNS }}
+          username: ubuntu
+          key: ${{ secrets.EC2_PEM_KEY }}
+          envs: GITHUB_SHA
+          script: |
+            sudo docker stop sorisonsoon-spring
+            sudo docker rm sorisonsoon-spring
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
+            sudo docker run --name sorisonsoon-spring -d -p 80:8001 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
+            sudo docker image prune -f

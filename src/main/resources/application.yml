@@ -1,0 +1,110 @@
+#spring.application.name=sorisonsoon
+#-----------------------------
+# server
+#-----------------------------
+server:
+  port: 8080
+#-----------------------------
+# spring
+#-----------------------------
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+        ai: DEBUG
+      springdoc: DEBUG
+    com:
+      sorisonsoon: DEBUG
+    root: INFO
+spring:
+  # [spring.openAi]
+  ai:
+    openai:
+      api-key: api-key
+    embedding:
+      transformer:
+        onnx:
+          modelUri: classpath:models/koSentenceTransformers/onnx-output-folder/model.onnx
+          modelOutputName: token_embeddings
+        tokenizer:
+          uri: classpath:models/koSentenceTransformers/onnx-output-folder/tokenizer.json
+  # [spring.datasource]
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: url
+    username: username
+    password: password
+  # [spring.jpa]
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MariaDBDialect
+  # [spring.servlet]
+  servlet:
+    multipart:
+      max-file-size: 10MB
+  # [upload-path]
+  image:
+    image-url: http://localhost:8080/images/
+    image-dir: src/main/resources/static/images
+  # [spring.mail]
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: username
+    password: password
+    properties:
+      mail:
+        smtp:
+          auth: true      # 사용자 인증 시도 여부
+          timeout: 300000   # Socket Read Timeout 시간(ms)
+          starttls:
+            enable: true  # StartTLS 활성화 여부
+#-----------------------------
+# security Setting
+#-----------------------------
+# jwt
+jwt:
+  secret: secret
+  access:
+    expiration: 3600000
+  # expiration: 30000 #10초
+  refresh:
+    expiration: 604800000
+  email:
+    secret: secret
+    expiration: 300000
+## token: secret-key, redirect-uri
+app:
+  auth:
+    secret: secret
+    access.expiration: 1800000
+    refresh.expiration: 604800000
+  oauth2:
+    authorizedRedirectUris:
+      - http://localhost:3000/oauth/redirect
+
+
+#-----------------------------
+# swagger ui Setting [swagger ui 사용을 위해 open api 설정]
+#-----------------------------
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+    display-query-params-without-oauth2: true
+    display-request-duration: true
+    tags-sorter: alpha
+    operations-sorter: method
+    url : "/api/v1/api-docs"
+    path : "/api/v1"
+    doc-expansion: none
+  api-docs:
+    path: "/api/v1/api-docs"
+  show-actuator: true
+  writer-with-default-pretty-printer: true
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+

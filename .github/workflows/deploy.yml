@@ -19,6 +19,12 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+
       # .yml 파일 환경 변수 설정
       - name: yml Set environment variables
         uses: microsoft/variable-substitution@v1

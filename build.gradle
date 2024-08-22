@@ -98,8 +98,16 @@ dependencyManagement {
 def querydslDir = "$buildDir/generated/querydsl"
 
 sourceSets {
-    main.java.srcDirs += [querydslDir]
+    main {
+        java {
+            srcDirs += [querydslDir]  // QueryDSL 소스 디렉토리 추가
+        }
+        resources {
+            srcDirs += ['src/main/resources']  // 리소스 디렉토리 설정
+        }
+    }
 }
+
 
 tasks.withType(JavaCompile) {
     options.getGeneratedSourceOutputDirectory().set(file(querydslDir))

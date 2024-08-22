@@ -25,7 +25,8 @@ RUN pip install optimum onnx onnxruntime sentence-transformers
 RUN optimum-cli export onnx --model jhgan/ko-sroberta-multitask --framework pt --monolith --task feature-extraction onnx-output-folder
 
 # Move the generated model to the appropriate location
-RUN mv /onnx-output-folder /src/main/resources/models/koSentenceTransformers
+RUN mkdir -p /src/main/resources/models/koSentenceTransformers && \
+    mv /onnx-output-folder /src/main/resources/models/koSentenceTransformers
 
 # Copy the Spring Boot application jar
 ARG JAR_FILE=build/libs/*.jar

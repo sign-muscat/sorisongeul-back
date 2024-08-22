@@ -62,7 +62,7 @@ public class GameVoiceService {
     }
 
     @Transactional
-    public RecordGameVoiceResponse saveGameVoice(RecordGameVoiceRequest recordGameVoiceRequest) {
+    public RecordGameVoiceResponse saveGameVoice(RecordGameVoiceRequest recordGameVoiceRequest, Long userId) {
         System.out.println("보이스아이디 : "+recordGameVoiceRequest.getVoiceId());
         GameCategory category = VOICE;
         Boolean isCorrect = null;
@@ -93,7 +93,7 @@ public class GameVoiceService {
 
         // DB 저장
         final Record newRecord = Record.of(
-                recordGameVoiceRequest.getPlayerId(),
+                userId,
                 recordGameVoiceRequest.getVoiceId(),
                 category,
                 isCorrect,

@@ -47,9 +47,13 @@ public class GameVoiceController {
      * @param recordGameVoiceRequest
      */
     @PostMapping("/check")
-    public ResponseEntity<ApiResponse<?>> gatCheckAnswerSentenceSimilarity(@RequestBody @Valid RecordGameVoiceRequest recordGameVoiceRequest) {
+    public ResponseEntity<ApiResponse<?>> gatCheckAnswerSentenceSimilarity(
+            @AuthenticationPrincipal CustomUser customUser,
+            @RequestBody @Valid RecordGameVoiceRequest recordGameVoiceRequest
+    ) {
+        Long userId = customUser.getUserId();
         System.out.println("컨트롤러의 보이스 아이디 : " + recordGameVoiceRequest);
-        final RecordGameVoiceResponse recordGameVoiceResponse = gameVoiceService.saveGameVoice(recordGameVoiceRequest);
+        final RecordGameVoiceResponse recordGameVoiceResponse = gameVoiceService.saveGameVoice(recordGameVoiceRequest, userId);
 
         return ResponseEntity.ok(ApiResponse.success("플레이가 기록 되었습니다.", recordGameVoiceResponse));
     }

@@ -1,20 +1,18 @@
 # Use Python 3.10 base image with OpenJDK 17
-FROM python:3.10-alpine
+FROM python:3.10
 
 # Install OpenJDK 17
 RUN apk add --no-cache openjdk17-jdk
 
 # Install build tools and dependencies
-RUN apk add --no-cache \
-    build-base \
-    cmake
+RUN apt-get update && \
+    apt-get install -y build-essential cmake
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
 # Install Python dependencies
 RUN pip install --upgrade pip setuptools
-
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 

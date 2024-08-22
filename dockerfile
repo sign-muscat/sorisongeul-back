@@ -4,17 +4,16 @@ FROM openjdk:17-jdk-alpine
 # Install Python and pip
 RUN apk add --no-cache python3 py3-pip
 
+# Install build tools and dependencies
+RUN apk add --no-cache \
+    build-base \
+    cmake
+
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
 # Install Python dependencies
 RUN pip install --upgrade pip setuptools
-
-RUN apt-get update && \
-    apt-get install -y cmake
-
-RUN apt-get update && \
-    apt-get install -y build-essential
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt

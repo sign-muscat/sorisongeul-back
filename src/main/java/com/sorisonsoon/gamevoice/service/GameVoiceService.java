@@ -1,7 +1,6 @@
 package com.sorisonsoon.gamevoice.service;
 
 import com.sorisonsoon.common.domain.type.GameCategory;
-import com.sorisonsoon.common.domain.type.GameDifficulty;
 import com.sorisonsoon.common.exception.NotFoundException;
 import com.sorisonsoon.common.exception.type.ExceptionCode;
 import com.sorisonsoon.common.utils.sentenceSimilarity.MatrixUtils;
@@ -14,6 +13,7 @@ import com.sorisonsoon.record.dto.request.RecordGameVoiceRequest;
 import com.sorisonsoon.record.dto.response.RecordGameVoiceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.transformers.TransformersEmbeddingModel;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +30,19 @@ public class GameVoiceService {
     private final GameVoiceRepository gameVoiceRepository;
     private final RecordRepository recordRepository;
 
-    public GameVoiceQuestionResponse findVoiceGameRandomQuestion(GameDifficulty difficulty) {
-        return gameVoiceRepository.getRandomVoiceByDifficulty(difficulty);
+    @Scheduled(cron = "0 0 0 * * *")
+    public void createTodayQuestion() {
+        gameVoiceRepository.createTodayQuestion();
+    }
+
+    @Transactional
+    public GameVoiceQuestionResponse findVoiceGameRandomQuestion(Long userId) {
+
+        if(userId == null) {
+            return gameVoiceRepository.getFixedQuestion();
+        }
+
+        return gameVoiceRepository.geTodayQuestion();
     }
 
     @Transactional

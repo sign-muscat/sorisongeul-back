@@ -2,7 +2,8 @@
 FROM python:3.10
 
 # Install OpenJDK 17
-RUN apk add --no-cache openjdk17-jdk
+RUN apt-get update && \
+    apt-get install -y openjdk-17-jdk
 
 # Install build tools and dependencies
 RUN apt-get update && \

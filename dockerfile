@@ -1,8 +1,8 @@
-# Base image with OpenJDK 17 and Python
-FROM openjdk:17-jdk-alpine
+# Use Python 3.10 base image with OpenJDK 17
+FROM python:3.10-alpine
 
-# Install Python and pip
-RUN apk add --no-cache python3 py3-pip
+# Install OpenJDK 17
+RUN apk add --no-cache openjdk17-jdk
 
 # Install build tools and dependencies
 RUN apk add --no-cache \

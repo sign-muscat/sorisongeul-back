@@ -2,14 +2,22 @@
 FROM openjdk:17-jdk-alpine
 
 # Install Python and pip
-RUN apk add --no-cache python3 py3-pip
+RUN apk update && \
+    apk add --no-cache \
+    python3 \
+    py3-pip \
+    build-base \
+    libffi-dev \
+    gcc \
+    musl-dev
+
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy FastAPI application code
 COPY hand_back.py /app/hand_back.py

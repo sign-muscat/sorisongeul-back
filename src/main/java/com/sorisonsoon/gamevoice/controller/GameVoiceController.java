@@ -41,11 +41,7 @@ public class GameVoiceController {
         return ResponseEntity.ok(ApiResponse.success("랜덤으로 문제를 가져왔습니다.",gameVoiceQuestionResponse));
     }
 
-    /**
-     * 문제 유사도 및 정답 일치 판단
-     *
-     * @param recordGameVoiceRequest
-     */
+    //문제 유사도 판단 및 정답 일치 판단
     @PostMapping("/check")
     public ResponseEntity<ApiResponse<?>> gatCheckAnswerSentenceSimilarity(
             @AuthenticationPrincipal CustomUser customUser,

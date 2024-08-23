@@ -25,12 +25,12 @@ public class Comment {
     private int communityId;
     private int parentCommentId;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private CommentCategory category;
 
     private String commentContent;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private CommentStatus status;
 
     @CreatedDate

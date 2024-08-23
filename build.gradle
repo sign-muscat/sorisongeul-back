@@ -63,6 +63,17 @@ dependencies {
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 
     /**
+     * 보안 관련 의존성
+     */
+    implementation 'org.springframework.boot:spring-boot-starter-security' //TODO: 스프링시큐리티 의존성 - 셋팅 단계 에서만 제외
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    /**
      * Lombok 의존성
      */
     annotationProcessor 'org.projectlombok:lombok'
@@ -81,7 +92,7 @@ dependencies {
     /**
      * swagger ui 설정
      */
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
 }
 
 dependencyManagement {

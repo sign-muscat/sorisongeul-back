@@ -21,9 +21,9 @@ public class GameRiddle {
     private String question;
     private String video;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private GameRiddleCategory category;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private GameDifficulty difficulty;
 }

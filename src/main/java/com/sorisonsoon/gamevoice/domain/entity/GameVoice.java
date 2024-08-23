@@ -4,9 +4,11 @@ import com.sorisonsoon.common.domain.type.GameDifficulty;
 import com.sorisonsoon.gamevoice.domain.type.GameVoiceCategory;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
 @Table(name = "game_voice")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GameVoice {
@@ -19,9 +21,9 @@ public class GameVoice {
     private String answer;
     private String question;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private GameVoiceCategory category;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private GameDifficulty difficulty;
 }

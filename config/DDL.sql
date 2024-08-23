@@ -62,7 +62,7 @@ CREATE TABLE `friend` (
                                     FOREIGN KEY (`to_user`) REFERENCES `users` (`user_id`),
                                     FOREIGN KEY (`from_user`) REFERENCES `users` (`user_id`),
                                 #CK
-                                    CONSTRAINT `friend_CK1` CHECK (`status` IN ('APPLIED', 'ACCEPTED', 'REJECTED', 'DELETED'))
+                                    CONSTRAINT `friend_CK1` CHECK (`status` IN ('APPLIED', 'ACCEPTED', 'REJECTED', 'CANCELED', 'DELETED'))
 ) COMMENT = '친구';
 
 -- Notice 테이블
@@ -177,6 +177,16 @@ CREATE TABLE `game_challenge` (
                                     CONSTRAINT `game_challenge_CK1` CHECK (`category` IN ('DRAMAS', 'MOVIES', 'COMEDIES', 'CARTOONS', 'BOOKS', 'MEMES')),
                                     CONSTRAINT `game_challenge_CK2` CHECK (`difficulty` IN ('LEVEL_1', 'LEVEL_2', 'LEVEL_3'))
 ) COMMENT = '도전 소리 탐정';
+
+CREATE TABLE `game_challenge_schedule` (
+                                  `challenge_schedule_id`   INT AUTO_INCREMENT              NOT NULL COMMENT '출제 기록 번호',
+                                  `challenge_id`            INT                             NOT NULL COMMENT '도소탐 번호',
+                                  `schedule`                DATE DEFAULT CURRENT_TIMESTAMP  NOT NULL COMMENT '출제 날짜',
+                                  #PK
+                                  PRIMARY KEY (`challenge_schedule_id`),
+                                  #FK
+                                  FOREIGN KEY (`challenge_id`) REFERENCES `game_challenge` (`challenge_id`)
+) COMMENT = '도전 소리 탐정 출제 기록';
 
 -- Game_whisper 테이블
 CREATE TABLE `game_whisper` (

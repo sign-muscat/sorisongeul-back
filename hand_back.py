@@ -53,7 +53,7 @@ app = FastAPI()
 # CORS 미들웨어 추가
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Spring Boot 설정에서 지정된 origin
+    allow_origins=["http://localhost:3000", "https://sorisonsoon.vercel.app"],  # Spring Boot 설정에서 지정된 origin
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Spring Boot 설정에서 지정된 메소드들
     allow_headers=["*"],

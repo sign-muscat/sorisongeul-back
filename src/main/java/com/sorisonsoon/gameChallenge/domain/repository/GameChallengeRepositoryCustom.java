@@ -18,3 +18,5 @@ public interface GameChallengeRepositoryCustom {
 
     SoundCorrectResponse checkCorrect(Long userId);
 }
+
+

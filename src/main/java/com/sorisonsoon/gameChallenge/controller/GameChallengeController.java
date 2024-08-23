@@ -53,4 +53,26 @@ public class GameChallengeController {
 
         return ResponseEntity.ok(result);
     }
+
+    @PostMapping("/reset-answer")
+    public ResponseEntity<Void> resetAnswer() {
+        // Test 데이터 @AuthenticationPrincipal
+        Long userId = 1L;
+
+        gameChallengeService.resetUserAnswer(userId);
+
+        return ResponseEntity.ok().build();
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+

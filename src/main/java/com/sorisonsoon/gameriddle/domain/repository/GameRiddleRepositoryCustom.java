@@ -11,3 +11,6 @@ public interface GameRiddleRepositoryCustom {
 
     List<HandQuestionResponse> getRiddlesByDifficulty(GameDifficulty difficulty, Long totalQuestion);
 }
+
+
+

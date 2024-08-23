@@ -1,7 +1,7 @@
 package com.sorisonsoon.gamevoice.service;
 
 import com.sorisonsoon.common.domain.type.GameCategory;
-import com.sorisonsoon.common.domain.type.GameDifficulty;
+import com.sorisonsoon.common.exception.ConflictException;
 import com.sorisonsoon.common.exception.NotFoundException;
 import com.sorisonsoon.common.exception.type.ExceptionCode;
 import com.sorisonsoon.common.utils.sentenceSimilarity.MatrixUtils;
@@ -14,10 +14,12 @@ import com.sorisonsoon.record.dto.request.RecordGameVoiceRequest;
 import com.sorisonsoon.record.dto.response.RecordGameVoiceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.transformers.TransformersEmbeddingModel;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.sorisonsoon.common.domain.type.GameCategory.VOICE;
 
@@ -30,12 +32,37 @@ public class GameVoiceService {
     private final GameVoiceRepository gameVoiceRepository;
     private final RecordRepository recordRepository;
 
-    public GameVoiceQuestionResponse findVoiceGameRandomQuestion(GameDifficulty difficulty) {
-        return gameVoiceRepository.getRandomVoiceByDifficulty(difficulty);
+    @Scheduled(cron = "0 0 0 * * *")
+    public void createTodayQuestion() {
+        gameVoiceRepository.createTodayQuestion();
     }
 
     @Transactional
-    public RecordGameVoiceResponse saveGameVoice(RecordGameVoiceRequest recordGameVoiceRequest) {
+    public GameVoiceQuestionResponse findVoiceGameRandomQuestion(Long userId) {
+
+        if (userId == null) {
+            return gameVoiceRepository.getFixedQuestion();
+        }
+
+        // 1. 오늘의 문제를 조회함. (문제 번호 반환)
+        GameVoiceQuestionResponse todayQuestion = gameVoiceRepository.geTodayQuestion();
+        Long voiceId = todayQuestion.getVoiceId();
+
+        // 2. 문제 번호로, 게임 기록을 조회
+        Optional<Record> userRecord = recordRepository.findByVoiceIdAndPlayerIdAndIsCorrectTrue(voiceId, userId);
+
+        // 3. 게임 기록이 있는지 판단
+        if (userRecord.isPresent()) {
+            // 유저가 이미 문제를 풀었다면 null을 반환
+            throw new ConflictException(ExceptionCode.ALREADY_QUESTION_CORRECT);
+        } else {
+            // 유저의 기록이 없다면 문제를 반환
+            return todayQuestion;
+        }
+    }
+
+    @Transactional
+    public RecordGameVoiceResponse saveGameVoice(RecordGameVoiceRequest recordGameVoiceRequest, Long userId) {
         System.out.println("보이스아이디 : "+recordGameVoiceRequest.getVoiceId());
         GameCategory category = VOICE;
         Boolean isCorrect = null;
@@ -66,7 +93,7 @@ public class GameVoiceService {
 
         // DB 저장
         final Record newRecord = Record.of(
-                recordGameVoiceRequest.getPlayerId(),
+                userId,
                 recordGameVoiceRequest.getVoiceId(),
                 category,
                 isCorrect,

@@ -55,3 +55,4 @@ torchvision==0.15.2
 pydantic==1.10.11
 sqlalchemy==2.0.20
 PyMySQL==1.1.0
+python-multipart==0.0.9

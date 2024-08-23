@@ -26,7 +26,7 @@ public class Record {
     private Long challengeId;
     private Long voiceId;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private GameCategory category;
 
     private Boolean isCorrect;

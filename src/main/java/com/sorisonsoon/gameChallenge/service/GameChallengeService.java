@@ -108,4 +108,14 @@ public class GameChallengeService {
 
         return new SoundResultResponse(isCorrect, similarity);
     }
+
+    public void resetUserAnswer(Long userId) {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
+
+        // 특정 시간 동안 사용자가 제출한 최근의 기록을 삭제합니다.
+        recordRepository.deleteAllByPlayerIdAndCreatedAtBetween(userId, startOfDay, endOfDay);
+    }
 }
+

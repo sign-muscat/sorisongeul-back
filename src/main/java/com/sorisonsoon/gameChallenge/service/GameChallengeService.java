@@ -1,136 +1,113 @@
-// package com.sorisonsoon.gameChallenge.service;
-
-// import com.sorisonsoon.common.domain.type.GameDifficulty;
-// import com.sorisonsoon.gameChallenge.dto.request.SoundResultRequest;
-// import com.sorisonsoon.gameChallenge.dto.response.SoundQuestionResponse;
-// import com.sorisonsoon.gameChallenge.domain.repository.GameChallengeRepository;
-// import com.sorisonsoon.gameChallenge.dto.response.SoundRecordResponse;
-// import com.sorisonsoon.gameChallenge.dto.response.SoundResultResponse;
-// import lombok.RequiredArgsConstructor;
-// import org.springframework.stereotype.Service;
-// import org.springframework.transaction.annotation.Transactional;
-
-// import java.util.List;
-
-// @Service
-// @Transactional
-// @RequiredArgsConstructor
-// public class GameChallengeService {
-
-//     private final GameChallengeRepository gameChallengeRepository;
-
-//     @Transactional(readOnly = true)
-//     public SoundQuestionResponse getSoundQuestion(GameDifficulty difficulty) {
-//         // TODO: 하루에 한 문제 제한 유무에 따라 로직 변동 가능성 (현재 문제 제한 X)
-//         return gameChallengeRepository.getQuestionByDifficulty(difficulty).orElseThrow();
-//     }
-
-//     @Transactional(readOnly = true)
-//     public List<SoundRecordResponse> getSoundRecords(Long challengeId) {
-//         return gameChallengeRepository.getSoundRecords(challengeId);
-//     }
-
-//     public SoundResultResponse getResult(SoundResultRequest answerRequest) {
-
-//         // TODO: (1) 전달 받은 문장을 임베딩
-
-//         // TODO: (2) 정답 문장의 임베딩 값과 유사도 판단
-
-//         // TODO: (3) DB record 저장
-
-//         // TODO: (4) SoundResultRequest 에 정답 여부와 유사도 담아서 반환
-//         return null;
-//     }
-// }
-
 package com.sorisonsoon.gameChallenge.service;
 
-import com.sorisonsoon.common.domain.type.GameDifficulty;
+import com.sorisonsoon.common.domain.type.GameCategory;
+import com.sorisonsoon.common.exception.NotFoundException;
+import com.sorisonsoon.common.exception.type.ExceptionCode;
+import com.sorisonsoon.gameChallenge.domain.entity.GameChallenge;
+import com.sorisonsoon.gameChallenge.domain.entity.GameChallengeSchedule;
+import com.sorisonsoon.gameChallenge.domain.repository.GameChallengeScheduleRepository;
 import com.sorisonsoon.gameChallenge.dto.request.SoundResultRequest;
+import com.sorisonsoon.gameChallenge.dto.response.SoundCorrectResponse;
 import com.sorisonsoon.gameChallenge.dto.response.SoundQuestionResponse;
 import com.sorisonsoon.gameChallenge.domain.repository.GameChallengeRepository;
 import com.sorisonsoon.gameChallenge.dto.response.SoundRecordResponse;
 import com.sorisonsoon.gameChallenge.dto.response.SoundResultResponse;
+import com.sorisonsoon.ranking.service.RankingService;
+import com.sorisonsoon.record.domain.entity.Record;
+import com.sorisonsoon.record.domain.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
-import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
-import org.deeplearning4j.models.word2vec.Word2Vec;
-import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
-import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
-import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
-import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
-import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.ops.transforms.Transforms;
+import org.springframework.ai.transformers.TransformersEmbeddingModel;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import java.io.File;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+
+import static com.sorisonsoon.common.utils.sentenceSimilarity.MatrixUtils.cosineSimilarity;
+import static com.sorisonsoon.gamevoice.service.GameVoiceService.isCorrectCheck;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class GameChallengeService {
 
+    private final TransformersEmbeddingModel transformersEmbeddingModel;
+
+    private final RankingService rankingService;
     private final GameChallengeRepository gameChallengeRepository;
-    private Word2Vec word2Vec;
+    private final GameChallengeScheduleRepository gameChallengeScheduleRepository;
+    private final RecordRepository recordRepository;
 
-    @PostConstruct
-    public void init() throws Exception {
-        // Word2Vec 모델 로드 또는 훈련
-        File gModel = new File("path/to/GoogleNews-vectors-negative300.bin.gz");
-        word2Vec = WordVectorSerializer.readWord2VecModel(gModel);
+    // 매일 자정, 오늘의 문제 출제
+    @Scheduled(cron = "0 0 0 * * *")
+    public void scheduleDailyQuestion() {
+        GameChallenge challengeQuestion = gameChallengeRepository.getUnscheduledQuestion();
+
+        gameChallengeScheduleRepository.save(
+                GameChallengeSchedule.of(
+                        challengeQuestion.getChallengeId()
+                )
+        );
     }
 
     @Transactional(readOnly = true)
-    public SoundQuestionResponse getSoundQuestion(GameDifficulty difficulty) {
-        return gameChallengeRepository.getQuestionByDifficulty(difficulty).orElseThrow();
+    public SoundCorrectResponse checkCorrect(Long userId) {
+        return gameChallengeRepository.checkCorrect(userId);
     }
 
     @Transactional(readOnly = true)
-    public List<SoundRecordResponse> getSoundRecords(Long challengeId) {
-        return gameChallengeRepository.getSoundRecords(challengeId);
+    public SoundQuestionResponse getSoundQuestion() {
+        return gameChallengeRepository.getTodayQuestion().orElseThrow();
     }
 
-    public SoundResultResponse getResult(SoundResultRequest answerRequest) {
-        String userAnswer = answerRequest.getUserAnswer();
-        String correctAnswer = answerRequest.getCorrectAnswer();
+    @Transactional(readOnly = true)
+    public List<SoundRecordResponse> getSoundRecords(Long userId, Long challengeId) {
+        return gameChallengeRepository.getSoundRecords(userId, challengeId);
+    }
 
-        // 문장 임베딩
-        INDArray userVector = getAverageSentenceVector(userAnswer);
-        INDArray correctVector = getAverageSentenceVector(correctAnswer);
+    public SoundResultResponse getResult(Long userId, SoundResultRequest answerRequest) {
 
-        // 코사인 유사도 계산
-        double similarity = Transforms.cosineSim(userVector, correctVector);
+        GameChallenge gameChallenge = gameChallengeRepository.findById(answerRequest.getChallengeId())
+                .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_GAME_QUESTION));
 
-        // 유사도에 따른 정답 여부 판단 (예: 0.8 이상이면 정답으로 간주)
-        boolean isCorrect = similarity >= 0.8;
+        // 정답과 inputText 임베딩
+        List<Double> embeddingAnswer = transformersEmbeddingModel.embed(gameChallenge.getAnswer());
+        List<Double> embeddingUserInput = transformersEmbeddingModel.embed(answerRequest.getInputText());
 
-        // DB record 저장
-        gameChallengeRepository.saveRecord(answerRequest, isCorrect, similarity);
+        // 유사도 측정
+        Double similarity = cosineSimilarity(embeddingAnswer, embeddingUserInput);
 
-        // 결과 반환
+        // 정답 판단 (띄어 쓰기 및 문장 부호 제거)
+        Boolean isCorrect = isCorrectCheck(gameChallenge.getAnswer(), answerRequest.getInputText());
+
+        final Record newRecord = Record.of(
+                userId,
+                answerRequest.getChallengeId(),
+                GameCategory.CHALLENGE,
+                isCorrect,
+                similarity,
+                answerRequest.getInputText()
+        );
+
+        // DB에 플레이 기록 저장
+        recordRepository.save(newRecord);
+
+        // 정답일 경우 랭킹 저장
+        if(isCorrect) {
+            LocalDate today = LocalDate.now();
+            LocalDateTime startOfDay = today.atStartOfDay();
+            LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
+
+            Long count = recordRepository.countByPlayerIdAndCreatedAtBetween(userId, startOfDay, endOfDay);
+
+            rankingService.save(userId, GameCategory.CHALLENGE, (double)1 /count);
+        }
+
         return new SoundResultResponse(isCorrect, similarity);
     }
 
-    private INDArray getAverageSentenceVector(String sentence) {
-        String[] words = sentence.toLowerCase().split(" ");
-        INDArray sum = null;
-        int count = 0;
 
-        for (String word : words) {
-            if (word2Vec.hasWord(word)) {
-                INDArray wordVector = word2Vec.getWordVectorMatrix(word);
-                if (sum == null) {
-                    sum = wordVector;
-                } else {
-                    sum.addi(wordVector);
-                }
-                count++;
-            }
-        }
-
-        return (count > 0) ? sum.divi(count) : sum;
-    }
 }

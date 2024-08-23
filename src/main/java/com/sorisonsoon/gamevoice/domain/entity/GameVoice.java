@@ -26,4 +26,8 @@ public class GameVoice {
 
     @Enumerated(value = EnumType.STRING)
     private GameDifficulty difficulty;
+
+    private Boolean isTodayQuestion;
+    private Boolean isPast;
+
 }

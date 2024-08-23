@@ -7,8 +7,10 @@ import com.sorisonsoon.gameChallenge.dto.response.SoundQuestionResponse;
 import com.sorisonsoon.gameChallenge.dto.response.SoundRecordResponse;
 import com.sorisonsoon.gameChallenge.dto.response.SoundResultResponse;
 import com.sorisonsoon.gameChallenge.service.GameChallengeService;
+import com.sorisonsoon.user.domain.type.CustomUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,39 +23,33 @@ public class GameChallengeController {
     private final GameChallengeService gameChallengeService;
 
     @GetMapping("/check-correct")
-    public ResponseEntity<SoundCorrectResponse> checkCorrect() {
-        // Test 데이터 @AuthenticationPrincipal
-        Long userId = 1L;
-
-        SoundCorrectResponse result = gameChallengeService.checkCorrect(userId);
+    public ResponseEntity<SoundCorrectResponse> checkCorrect(@AuthenticationPrincipal CustomUser user) {
+        SoundCorrectResponse result = gameChallengeService.checkCorrect(user.getUserId());
 
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/game-start")
     public ResponseEntity<SoundQuestionResponse> gameStart() {
-
         SoundQuestionResponse question = gameChallengeService.getSoundQuestion();
 
         return ResponseEntity.ok(question);
     }
 
     @GetMapping("/records")
-    public ResponseEntity<List<SoundRecordResponse>> getRecords(@RequestParam Long challengeId) {
-        // Test 데이터 @AuthenticationPrincipal
-        Long userId = 1L;
-
-        List<SoundRecordResponse> records = gameChallengeService.getSoundRecords(userId, challengeId);
+    public ResponseEntity<List<SoundRecordResponse>> getRecords(@RequestParam Long challengeId,
+                                                                @AuthenticationPrincipal CustomUser user
+    ) {
+        List<SoundRecordResponse> records = gameChallengeService.getSoundRecords(user.getUserId(), challengeId);
 
         return ResponseEntity.ok(records);
     }
 
     @PostMapping("/result")
-    public ResponseEntity<SoundResultResponse> getResult(@RequestBody SoundResultRequest answerRequest) {
-        // Test 데이터 @AuthenticationPrincipal
-        Long userId = 1L;
-
-        SoundResultResponse result = gameChallengeService.getResult(userId, answerRequest);
+    public ResponseEntity<SoundResultResponse> getResult(@RequestBody SoundResultRequest answerRequest,
+                                                         @AuthenticationPrincipal CustomUser user
+    ) {
+        SoundResultResponse result = gameChallengeService.getResult(user.getUserId(), answerRequest);
 
         return ResponseEntity.ok(result);
     }

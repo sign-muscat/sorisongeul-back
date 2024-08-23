@@ -25,7 +25,7 @@ public class Community {
     private String communityContent;
     private int views;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private CommunityStatus status;
 
     private boolean isDeleted;

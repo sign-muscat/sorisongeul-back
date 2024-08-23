@@ -10,7 +10,6 @@ import com.sorisonsoon.gameriddle.dto.request.GameFinishRequest;
 import com.sorisonsoon.gameriddle.dto.response.HandQuestionResponse;
 import com.sorisonsoon.ranking.service.RankingService;
 import com.sorisonsoon.record.domain.entity.RecordRiddle;
-import com.sorisonsoon.record.domain.repository.RecordRepository;
 import com.sorisonsoon.record.domain.repository.RecordRiddleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,18 +30,18 @@ public class GameRiddleService {
     @Transactional(readOnly = true)
     public List<HandQuestionResponse> getGameRiddles(GameDifficulty difficulty, Long totalQuestion) {
         return gameRiddleRepository.getRiddlesByDifficulty(difficulty, totalQuestion);
-    };
+    }
 
     @Transactional(readOnly = true)
     public String getQuestionImage(Long riddleId, Long step) {
         GameRiddleStep question = gameRiddleStepRepository.findByRiddleIdAndStep(riddleId, step);
-        return question.getAnswer();
+        return question != null ? question.getAnswer() : null;
     }
 
     @Transactional(readOnly = true)
     public String getQuestionVideo(Long riddleId) {
         GameRiddle question = gameRiddleRepository.findByRiddleId(riddleId);
-        return question.getVideo();
+        return question != null ? question.getVideo() : null;
     }
 
     public void gameFinish(Long userId, List<GameFinishRequest> finishRequest) {
@@ -67,3 +66,5 @@ public class GameRiddleService {
         rankingService.save(userId, GameCategory.RIDDLE, score);
     }
 }
+
+

@@ -27,6 +27,6 @@ public class Guestbook {
 
     private LocalDateTime modifiedAt;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private GuestbookStatus status;
 }

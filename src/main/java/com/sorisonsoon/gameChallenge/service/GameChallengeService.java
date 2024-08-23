@@ -1,7 +1,6 @@
 package com.sorisonsoon.gameChallenge.service;
 
 import com.sorisonsoon.common.domain.type.GameCategory;
-import com.sorisonsoon.common.domain.type.GameDifficulty;
 import com.sorisonsoon.common.exception.NotFoundException;
 import com.sorisonsoon.common.exception.type.ExceptionCode;
 import com.sorisonsoon.gameChallenge.domain.entity.GameChallenge;
@@ -25,11 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Date;
 import java.util.List;
 
 import static com.sorisonsoon.common.utils.sentenceSimilarity.MatrixUtils.cosineSimilarity;
-import static com.sorisonsoon.common.utils.sentenceSimilarity.MatrixUtils.pairwiseCosineSimilarity;
 import static com.sorisonsoon.gamevoice.service.GameVoiceService.isCorrectCheck;
 
 @Service
@@ -111,4 +108,14 @@ public class GameChallengeService {
 
         return new SoundResultResponse(isCorrect, similarity);
     }
+
+    public void resetUserAnswer(Long userId) {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
+
+        // 특정 시간 동안 사용자가 제출한 최근의 기록을 삭제합니다.
+        recordRepository.deleteAllByPlayerIdAndCreatedAtBetween(userId, startOfDay, endOfDay);
+    }
 }
+

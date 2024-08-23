@@ -20,14 +20,6 @@ RUN pip install -r requirements.txt
 # Copy FastAPI application code
 COPY hand_back.py /app/hand_back.py
 
-# Run the Python script to generate the model
-RUN pip install optimum onnx onnxruntime sentence-transformers
-RUN optimum-cli export onnx --model jhgan/ko-sroberta-multitask --framework pt --monolith --task feature-extraction onnx-output-folder
-
-# Move the generated model to the appropriate location
-RUN mkdir -p /src/main/resources/models/koSentenceTransformers && \
-    mv /onnx-output-folder /src/main/resources/models/koSentenceTransformers
-
 # Copy the Spring Boot application jar
 ARG JAR_FILE=build/libs/*.jar
 COPY ${JAR_FILE} app.jar

@@ -19,11 +19,27 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
+      # Python 3.10 설정
       - name: Set up Python 3.10
         uses: actions/setup-python@v2
         with:
           python-version: '3.10'
 
+      # 모델 변환을 위한 Python dependency 설정
+      - name: Install Python dependencies
+        run: |
+          pip install optimum onnx onnxruntime sentence-transformers
+
+      # onnx 추출
+      - name: Export ONNX model
+        run: |
+          optimum-cli export onnx --model jhgan/ko-sroberta-multitask --framework pt --monolith --task feature-extraction onnx-output-folder
+
+      # 추출한 onnx 모델 위치 변경
+      - name: Copy ONNX model to Java resources
+        run: |
+          mkdir -p src/main/resources/models/koSentenceTransformers
+          cp -r onnx-output-folder/* /src/main/resources/models/koSentenceTransformers/
 
       # .yml 파일 환경 변수 설정
       - name: yml Set environment variables

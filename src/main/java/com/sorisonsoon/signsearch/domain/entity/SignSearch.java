@@ -24,6 +24,6 @@ public class SignSearch {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private SignSearchCategory category;
 }

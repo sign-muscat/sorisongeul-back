@@ -1,10 +1,14 @@
 package com.sorisonsoon.common.controller;
 
+import com.sorisonsoon.common.dto.response.ApiResponse;
 import com.sorisonsoon.common.utils.sentenceSimilarity.MatrixUtils;
+import com.sorisonsoon.user.domain.type.CustomUser;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.embedding.EmbeddingResponse;
 import org.springframework.ai.transformers.TransformersEmbeddingModel;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -68,4 +72,15 @@ public class SettingTestController {
                 .collect(Collectors.toList());
     }
 
+
+    //토큰 재발급이 정상적으로 이루어 지고 있는지 테스트
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal CustomUser customUser) {
+        if (customUser != null) {
+            System.out.println("customUser : " + customUser);
+            return ResponseEntity.ok(customUser);  // 현재 사용자 정보를 반환
+        } else {
+            return ResponseEntity.ok(ApiResponse.success("정상 작동합니당",customUser));
+        }
+    }
 }

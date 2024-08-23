@@ -21,9 +21,9 @@ public class GameVoice {
     private String answer;
     private String question;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private GameVoiceCategory category;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private GameDifficulty difficulty;
 }

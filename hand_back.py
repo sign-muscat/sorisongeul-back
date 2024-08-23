@@ -1,16 +1,19 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
+from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String, Enum, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, relationship
 import torch
+import torch.nn.functional as F
 import torch.nn as nn
 from torchvision import transforms, models
 from PIL import Image
 import io
 import yaml
 import logging
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
 
 # 로깅 설정
 logging.basicConfig(level=logging.WARNING)
@@ -67,19 +70,29 @@ def get_db():
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 logging.warning(f"Using device: {device}")
 
+# 모델 URL 정의
+MODEL_URL = "https://huggingface.co/rlatg0123/best_resnet_multilabel_model/resolve/main/model/best_resnet_multilabel_model.pth"
+
 # 모델 로드 함수
 def load_model():
     model = models.resnet50(weights=None)
     num_ftrs = model.fc.in_features
+    
     with open("data.yaml", 'r') as stream:
         data = yaml.safe_load(stream)
     num_classes = len(data['names'])
+    
     model.fc = nn.Linear(num_ftrs, num_classes)
-    model.load_state_dict(torch.load('model/best_resnet_multilabel_model.pth', map_location=device))
+    
+    # Hugging Face에서 모델 가중치 로드
+    state_dict = torch.hub.load_state_dict_from_url(MODEL_URL, map_location=device)
+    model.load_state_dict(state_dict)
+    
     model.to(device)
     model.eval()
     return model, data['names']
 
+# 모델 로드
 model, class_names = load_model()
 
 # 이미지 변환
@@ -102,8 +115,6 @@ class PredictionResponse(BaseModel):
     feedback: str
 
 # 이미지 예측 엔드포인트
-from fastapi import Form
-
 @app.post("/api/v1/sign/predict", response_model=PredictionResponse)
 async def predict_image(
     file: UploadFile = File(...), 
@@ -133,15 +144,34 @@ async def predict_image(
 
         with torch.no_grad():
             outputs = model(image)
-            probabilities = torch.sigmoid(outputs)
-            max_prob, predicted_idx = torch.max(probabilities, 1)
-            predicted_label = class_names[predicted_idx.item()]
+            probabilities = F.softmax(outputs, dim=1)
 
-        # 정답 확인
+        # Top-3 Accuracy 확인
         correct_label = f"{current_step_obj.riddle.label}_{current_step}"
-        is_correct = (predicted_label == correct_label)
+        correct_label_index = class_names.index(correct_label)
 
-        feedback = "정답입니다!" if is_correct else "틀렸습니다. 다시 시도해보세요."
+        # Top-3 예측 결과 가져오기
+        top3_prob, top3_indices = torch.topk(probabilities, 3, dim=1)
+        top3_indices = top3_indices.squeeze().tolist()
+        top3_prob = top3_prob.squeeze().tolist()
+
+        is_correct = correct_label_index in top3_indices
+        correct_prob = probabilities[0, correct_label_index].item()
+
+        # 피드백 생성
+        if is_correct:
+            rank = top3_indices.index(correct_label_index) + 1
+            confidence = top3_prob[top3_indices.index(correct_label_index)]
+            feedback = f"정답입니다! (Top-{rank}, 확신도: {confidence:.4f})"
+        else:
+            feedback = f"틀렸습니다. 다시 시도해보세요. (정답에 대한 확신도: {correct_prob:.4f})"
+
+        # Top-3 예측 결과 로깅
+        top3_predictions = [
+            f"{class_names[idx]} (확신도: {prob:.4f})"
+            for idx, prob in zip(top3_indices, top3_prob)
+        ]
+        logging.info(f"Top-3 predictions: {', '.join(top3_predictions)}")
 
         next_step = current_step + 1 if is_correct else current_step
 
@@ -158,7 +188,6 @@ async def predict_image(
     except Exception as e:
         logging.error(f"Error in predict_image: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
 
 if __name__ == "__main__":
     import uvicorn

@@ -33,20 +33,52 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime deletedAt;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private UserRole role;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private UserType type;
 
-    @Enumerated(EnumType.STRING)
-    private UserStatus status;
+    @Enumerated(value = EnumType.STRING)
+    private UserStatus status = UserStatus.ACTIVATE;
 
     private String accessToken;
     private String refreshToken;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private UserProvider provider;
 
     private String profileImage;
+
+
+    private User(String id, String password, String name, String email, String type) {
+        this(id, password, name, email, UserType.valueOf(type));
+    }
+
+    private User(String id, String password, String name, String email, UserType type) {
+        this.id = id;
+        this.password = password;
+        this.nickname = name;
+        this.email = email;
+        this.type = type;
+    }
+
+    public static User from(String id, String password, String name, String email, String type) {
+        return new User(
+                id,
+                password,
+                name,
+                email,
+                type
+        );
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
 }

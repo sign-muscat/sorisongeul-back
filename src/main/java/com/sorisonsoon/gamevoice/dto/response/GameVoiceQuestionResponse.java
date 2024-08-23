@@ -1,6 +1,7 @@
 package com.sorisonsoon.gamevoice.dto.response;
 
 import com.sorisonsoon.common.domain.type.GameDifficulty;
+import com.sorisonsoon.gamevoice.domain.entity.GameVoice;
 import com.sorisonsoon.gamevoice.domain.type.GameVoiceCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -25,4 +26,20 @@ public class GameVoiceQuestionResponse {
 
     @Schema(description = "난이도")
     private final GameDifficulty difficulty;
+
+    @Schema(description = "오늘 문제 유무")
+    private final Boolean isTodayQuestion;
+
+    @Schema(description = "지난 문제 유무")
+    private final Boolean isPast;
+
+    public GameVoiceQuestionResponse(GameVoice gameVoice) {
+        this.voiceId = gameVoice.getVoiceId();
+        this.answer = gameVoice.getAnswer();
+        this.question = gameVoice.getQuestion();
+        this.category = gameVoice.getCategory();
+        this.difficulty = gameVoice.getDifficulty();
+        this.isTodayQuestion = gameVoice.getIsTodayQuestion();
+        this.isPast = gameVoice.getIsPast();
+    }
 }

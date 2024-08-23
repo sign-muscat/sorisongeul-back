@@ -7,13 +7,19 @@ import com.sorisonsoon.friend.domain.entity.Friend;
 import com.sorisonsoon.friend.domain.repository.FriendRepository;
 import com.sorisonsoon.friend.domain.type.ApplyType;
 import com.sorisonsoon.friend.domain.type.FriendStatus;
+import com.sorisonsoon.friend.dto.response.RecommendFriendResponse;
 import com.sorisonsoon.friend.dto.response.FriendApplyResponse;
 import com.sorisonsoon.friend.dto.response.FriendResponse;
+import com.sorisonsoon.interest.domain.entity.Interest;
+import com.sorisonsoon.interest.domain.repository.InterestRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.transformers.TransformersEmbeddingModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
+
+import static com.sorisonsoon.common.utils.sentenceSimilarity.MatrixUtils.cosineSimilarity;
 
 @Service
 @Transactional
@@ -21,6 +27,8 @@ import java.util.List;
 public class FriendService {
 
     private final FriendRepository friendRepository;
+    private final InterestRepository interestRepository;
+    private final TransformersEmbeddingModel transformersEmbeddingModel;
 
     @Transactional(readOnly = true)
     public List<FriendResponse> getFriends(Long userId) {
@@ -66,5 +74,48 @@ public class FriendService {
         }
 
         friendRepository.delete(friend);
+    }
+
+    @Transactional(readOnly = true)
+    public List<RecommendFriendResponse> getRecommendedFriends(Long userId) {
+        List<Interest> interests = interestRepository.findAll();
+
+        Map<Long, List<List<Double>>> userEmbeddings = new HashMap<>();
+
+        for (Interest interest : interests) {
+            List<Double> embedding = transformersEmbeddingModel.embed(interest.getKeyword());
+            userEmbeddings.computeIfAbsent(interest.getUserId(), k -> new ArrayList<>()).add(embedding);
+        }
+
+        Map<Long, Double> similarityMap = new HashMap<>();
+        List<List<Double>> targetEmbeddings = userEmbeddings.get(userId);
+
+        for (Map.Entry<Long, List<List<Double>>> entry : userEmbeddings.entrySet()) {
+            Long otherUserId = entry.getKey();
+            if (otherUserId.equals(userId)) continue;
+
+            List<List<Double>> otherEmbeddings = entry.getValue();
+            double maxSimilarity = 0.0;
+
+            for (List<Double> targetVec : targetEmbeddings) {
+                for (List<Double> otherVec : otherEmbeddings) {
+                    double similarity = cosineSimilarity(
+                            targetVec, otherVec
+                    );
+                    maxSimilarity = Math.max(maxSimilarity, similarity);
+                }
+            }
+            similarityMap.put(otherUserId, maxSimilarity);
+        }
+
+        List<Long> recommends = similarityMap.entrySet().stream()
+                .sorted(Map.Entry.<Long, Double>comparingByValue().reversed())
+                .limit(3)
+                .map(Map.Entry::getKey)
+                .toList();
+
+        System.out.println("similarityMap : " + similarityMap);
+        System.out.println("recommends : " + recommends);
+        return friendRepository.getRecommendedFriends(recommends);
     }
 }

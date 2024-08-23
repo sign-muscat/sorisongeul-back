@@ -28,7 +28,7 @@ public class AttachedFile {
 
     private Long reportId;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private AttachedFileCategory category;
 
     private String fileName;

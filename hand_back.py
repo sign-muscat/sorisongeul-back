@@ -1,4 +1,3 @@
-# TOP3 accuracy 안에 존재하면 정답으로 판단
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -13,8 +12,8 @@ from PIL import Image
 import io
 import yaml
 import logging
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
+from fastapi.middleware.cors import CORSMiddleware
+
 
 # 로깅 설정
 logging.basicConfig(level=logging.WARNING)
@@ -51,11 +50,12 @@ class GameRiddleStep(Base):
 # FastAPI 앱 생성
 app = FastAPI()
 
+# CORS 미들웨어 추가
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000", "https://sorisonsoon.vercel.app"],  # Spring Boot 설정에서 지정된 origin
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Spring Boot 설정에서 지정된 메소드들
     allow_headers=["*"],
 )
 
@@ -71,48 +71,30 @@ def get_db():
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 logging.warning(f"Using device: {device}")
 
+# 모델 URL 정의
+MODEL_URL = "https://huggingface.co/rlatg0123/best_resnet_multilabel_model/resolve/main/model/best_resnet_multilabel_model.pth"
 
 # 모델 로드 함수
 def load_model():
     model = models.resnet50(weights=None)
     num_ftrs = model.fc.in_features
+    
     with open("data.yaml", 'r') as stream:
         data = yaml.safe_load(stream)
     num_classes = len(data['names'])
+    
     model.fc = nn.Linear(num_ftrs, num_classes)
-    model.load_state_dict(torch.load('model/best_resnet_multilabel_model.pth', map_location=device))
+    
+    # Hugging Face에서 모델 가중치 로드
+    state_dict = torch.hub.load_state_dict_from_url(MODEL_URL, map_location=device)
+    model.load_state_dict(state_dict)
+    
     model.to(device)
     model.eval()
     return model, data['names']
 
+# 모델 로드
 model, class_names = load_model()
-
-# # 모델 로드 함수
-# def load_model():
-#     model = models.resnet50(weights=None)
-#     num_ftrs = model.fc.in_features
-    
-#     # data.yaml 파일에서 클래스 이름 로드
-#     with open("data.yaml", 'r') as stream:
-#         data = yaml.safe_load(stream)
-    
-#     num_classes = len(data['names'])
-    
-#     # 학습된 모델 구조와 일치하도록 fc 레이어 정의
-#     model.fc = nn.Sequential(
-#         nn.Dropout(0.5),            # 학습 시 사용된 드롭아웃 추가
-#         nn.Linear(num_ftrs, num_classes)
-#     )
-    
-#     # 모델 가중치 로드
-#     model.load_state_dict(torch.load('model/best_resnet_multilabel_model_1.pth', map_location=device))
-    
-#     # 모델을 GPU로 이동 및 평가 모드로 전환
-#     model.to(device)
-#     model.eval()
-    
-#     return model, data['names']
-
 
 # 이미지 변환
 transform = transforms.Compose([

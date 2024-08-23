@@ -51,7 +51,12 @@ public class GameVoiceController {
             @AuthenticationPrincipal CustomUser customUser,
             @RequestBody @Valid RecordGameVoiceRequest recordGameVoiceRequest
     ) {
-        Long userId = customUser.getUserId();
+        Long userId;
+        if(customUser != null) {
+            userId = customUser.getUserId();
+        } else {
+            userId = null;
+        }
         System.out.println("컨트롤러의 보이스 아이디 : " + recordGameVoiceRequest);
         final RecordGameVoiceResponse recordGameVoiceResponse = gameVoiceService.saveGameVoice(recordGameVoiceRequest, userId);
 

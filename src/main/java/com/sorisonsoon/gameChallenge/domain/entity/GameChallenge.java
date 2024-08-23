@@ -20,10 +20,10 @@ public class GameChallenge {
 
     private String question;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private GameChallengeCategory category;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private GameDifficulty difficulty;
 
     private String answer;

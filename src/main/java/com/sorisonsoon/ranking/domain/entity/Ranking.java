@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "ranking")
 @DynamicInsert
+@Getter
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
 public class Ranking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,8 +25,12 @@ public class Ranking {
 
     private Long userId;
 
-    @Enumerated(EnumType.STRING)
+
+    
     @Column(name = "category")
+
+    @Enumerated(value = EnumType.STRING)
+
     private GameCategory category;
 
     private int score;

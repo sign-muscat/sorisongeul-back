@@ -24,4 +24,6 @@ public class RecordGameVoiceRequest {
         this.voiceId = voiceId;
         this.inputText = inputText;
     }
+
+
 }

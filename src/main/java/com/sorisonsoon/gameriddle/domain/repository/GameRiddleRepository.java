@@ -7,3 +7,5 @@ public interface GameRiddleRepository extends JpaRepository<GameRiddle, Long>, G
 
     GameRiddle findByRiddleId(Long riddleId);
 }
+
+

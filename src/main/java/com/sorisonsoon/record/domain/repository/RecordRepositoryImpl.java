@@ -6,6 +6,7 @@ import com.sorisonsoon.record.domain.entity.QRecord;
 
 import java.time.LocalDateTime;
 
+
 @RequiredArgsConstructor
 public class RecordRepositoryImpl implements RecordRepositoryCustom {
 

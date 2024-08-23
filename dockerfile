@@ -31,6 +31,6 @@ EXPOSE 8000
 EXPOSE 8080
 
 # Start both FastAPI and Spring Boot applications
-CMD ["sh", "-c", "uvicorn hand_back:app --host 0.0.0.0 --port 8000 & java -Xms512m -Xmx1.5G -jar /app.jar"]
+CMD ["sh", "-c", "uvicorn hand_back:app --host 0.0.0.0 --port 8000 & java -Xms512m -Xmx1536m -jar /app.jar"]
 
 

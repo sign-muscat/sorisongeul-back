@@ -53,6 +53,10 @@ jobs:
           spring.datasource.password: ${{ secrets.DB_PASSWORD }}
           spring.mail.username: ${{ secrets.MAIL_USERNAME }}
           spring.mail.password: ${{ secrets.MAIL_PASSWORD }}
+          cloud.aws.access-key: ${{ secrets.AWS_ACCESS_KEY }}
+          cloud.aws.secret-key: ${{ secrets.AWS_SECRET_KEY }}
+          cloud.aws.s3.bucket: ${{ secrets.AWS_BUCKET }}
+          cloud.aws.s3.region.static: ${{ secrets.AWS_REGION }}
           jwt.secret: ${{ secrets.JWT_SECRET }}
           jwt.email.secret: ${{ secrets.JWT_EMAIL_SECRET }}
           app.auth.secret: ${{ secrets.APP_AUTH_SECRET }}

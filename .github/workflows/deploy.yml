@@ -1,0 +1,103 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # JDK 17 설정
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      # Python 3.10 설정
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      # 모델 변환을 위한 Python dependency 설정
+      - name: Install Python dependencies
+        run: |
+          pip install optimum onnx onnxruntime sentence-transformers
+
+      # onnx 추출
+      - name: Export ONNX model
+        run: |
+          optimum-cli export onnx --model jhgan/ko-sroberta-multitask --framework pt --monolith --task feature-extraction onnx-output-folder
+
+      # 추출한 onnx 모델 위치 변경
+      - name: Copy ONNX model to Java resources
+        run: |
+          mkdir -p src/main/resources/models/koSentenceTransformers
+          cp -r onnx-output-folder src/main/resources/models/koSentenceTransformers/
+
+      # .yml 파일 환경 변수 설정
+      - name: yml Set environment variables
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: ./src/main/resources/application.yml
+        env:
+          spring.ai.openai.api-key: ${{ secrets.OPEN_AI_API_KEY }}
+          spring.datasource.url: ${{ secrets.DB_URL }}
+          spring.datasource.username: ${{ secrets.DB_USERNAME }}
+          spring.datasource.password: ${{ secrets.DB_PASSWORD }}
+          spring.mail.username: ${{ secrets.MAIL_USERNAME }}
+          spring.mail.password: ${{ secrets.MAIL_PASSWORD }}
+          cloud.aws.access-key: ${{ secrets.AWS_ACCESS_KEY }}
+          cloud.aws.secret-key: ${{ secrets.AWS_SECRET_KEY }}
+          cloud.aws.s3.bucket: ${{ secrets.AWS_BUCKET }}
+          cloud.aws.s3.region.static: ${{ secrets.AWS_REGION }}
+          jwt.secret: ${{ secrets.JWT_SECRET }}
+          jwt.email.secret: ${{ secrets.JWT_EMAIL_SECRET }}
+          app.auth.secret: ${{ secrets.APP_AUTH_SECRET }}
+
+      # 실행 권한 부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Gradle 빌드 진행
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build -x test
+
+      # Docker 로그인
+      - name: Docker Login
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Docker build 및 docker hub로 push
+      - name: Docker build & push to docker repo
+        run: |
+          docker build -f dockerfile -t ${{ secrets.DOCKER_REPOSITORY }} .
+          docker tag  ${{ secrets.DOCKER_REPOSITORY }}:latest ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
+
+
+      # ssh 접속 및 명령어로 기존 컨테이너를 내리고, 이미지를 업데이트해 배포한다.
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        id: deploy
+        with:
+          host: ${{ secrets.EC2_HOST_DNS }}
+          username: ubuntu
+          key: ${{ secrets.EC2_PEM_KEY }}
+          envs: GITHUB_SHA
+          script: |
+            sudo docker stop sorisonsoon-spring
+            sudo docker rm sorisonsoon-spring
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
+            sudo docker run --name sorisonsoon-spring -d -p 8080:8080 -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
+            sudo docker image prune -f

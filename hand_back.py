@@ -10,6 +10,7 @@ import torch.nn as nn
 from torchvision import transforms, models
 from PIL import Image
 from pathlib import Path
+from starlette.responses import JSONResponse
 import io
 import yaml
 import logging

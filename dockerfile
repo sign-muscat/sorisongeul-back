@@ -20,6 +20,7 @@ RUN pip install -r requirements.txt
 # Copy FastAPI application code
 COPY hand_back.py /app/hand_back.py
 COPY data.yaml /app/data.yaml
+RUN ls -l /app
 
 # Copy the Spring Boot application jar
 ARG JAR_FILE=build/libs/*.jar

@@ -74,12 +74,16 @@ logging.warning(f"Using device: {device}")
 # 모델 URL 정의
 MODEL_URL = "https://huggingface.co/rlatg0123/best_resnet_multilabel_model/resolve/main/model/best_resnet_multilabel_model.pth"
 
+# yaml 경로 정의
+BASE_DIR = Path(__file__).resolve().parent
+yaml_path = BASE_DIR / 'data.yaml'
+
 # 모델 로드 함수
 def load_model():
     model = models.resnet50(weights=None)
     num_ftrs = model.fc.in_features
     
-    with open("data.yaml", 'r') as stream:
+    with open(yaml_path, 'r') as stream:
         data = yaml.safe_load(stream)
     num_classes = len(data['names'])
     

@@ -81,7 +81,7 @@ jobs:
       # Docker build 및 docker hub로 push
       - name: Docker build & push to docker repo
         run: |
-          docker build -f dockerfile -t ${{ secrets.DOCKER_REPOSITORY }} .
+          docker build --no-cache -f dockerfile -t ${{ secrets.DOCKER_REPOSITORY }} .
           docker tag  ${{ secrets.DOCKER_REPOSITORY }}:latest ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
 

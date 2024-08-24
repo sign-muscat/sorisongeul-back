@@ -115,6 +115,12 @@ class PredictionResponse(BaseModel):
     total_steps: int
     feedback: str
 
+# 상태 검사 엔드포인트
+@app.get("/api/v1/ec2/fastapi")
+async def get_status():
+    print("fast api ok")
+    return JSONResponse(content={"message": "ok"}, status_code=200)
+
 # 이미지 예측 엔드포인트
 @app.post("/api/v1/sign/predict", response_model=PredictionResponse)
 async def predict_image(

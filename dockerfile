@@ -20,11 +20,10 @@ RUN pip install -r requirements.txt
 # Copy FastAPI application code
 COPY hand_back.py /app/hand_back.py
 COPY data.yaml /app/data.yaml
-RUN ls -l /app
 
 # Copy the Spring Boot application jar
 ARG JAR_FILE=build/libs/*.jar
-COPY ${JAR_FILE} app.jar
+COPY ${JAR_FILE} /app/app.jar
 
 # Expose FastAPI port (if different from Spring Boot port)
 EXPOSE 8000
@@ -33,6 +32,4 @@ EXPOSE 8000
 EXPOSE 8080
 
 # Start both FastAPI and Spring Boot applications
-CMD ["sh", "-c", "uvicorn hand_back:app --host 0.0.0.0 --port 8000 & java -Xms512m -Xmx1536m -jar /app.jar"]
-
-
+CMD ["sh", "-c", "cd /app && uvicorn hand_back:app --host 0.0.0.0 --port 8000 & java -Xms512m -Xmx1536m -jar /app/app.jar"]

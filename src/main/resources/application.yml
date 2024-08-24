@@ -45,7 +45,9 @@ spring:
   # [spring.servlet]
   servlet:
     multipart:
-      max-file-size: 10MB
+      enabled: true
+    max-file-size: 20MB
+    max-request-size: 20MB
   # [upload-path]
   image:
     image-url: http://localhost:8080/images/
@@ -63,6 +65,17 @@ spring:
           timeout: 300000   # Socket Read Timeout 시간(ms)
           starttls:
             enable: true  # StartTLS 활성화 여부
+#-----------------------------
+# Cloud Setting
+#-----------------------------
+cloud:
+  aws:
+    access-key: access
+    secret-key: secret
+    s3:
+      bucket: bucket
+      stack.auto: false
+      region.static: region
 #-----------------------------
 # security Setting
 #-----------------------------
@@ -85,7 +98,7 @@ app:
     refresh.expiration: 604800000
   oauth2:
     authorizedRedirectUris:
-      - http://localhost:3000/oauth/redirect
+      - https://localhost:3000/oauth/redirect
 
 
 #-----------------------------

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Setter
 public class PaymentDTO {
     private Long paymentId;
-    private int payerId;
+    private Long payerId;
     private int amount;
     private LocalDateTime payedAt;
 }

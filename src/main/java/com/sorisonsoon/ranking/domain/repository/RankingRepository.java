@@ -9,7 +9,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface RankingRepository extends JpaRepository<Ranking, Long> {
+public interface RankingRepository extends JpaRepository<Ranking, Long>, RankingRepositoryCustom {
     @Query("SELECT r FROM Ranking r WHERE r.category = :category ORDER BY r.score DESC")
     List<Ranking> findTop10ByCategory(@Param("category") GameCategory category, Pageable pageable);
+
+
 }

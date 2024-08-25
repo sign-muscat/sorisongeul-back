@@ -4,6 +4,7 @@ import com.sorisonsoon.common.domain.type.GameCategory;
 import com.sorisonsoon.ranking.domain.entity.Ranking;
 import com.sorisonsoon.ranking.domain.repository.RankingRepository;
 import com.sorisonsoon.ranking.dto.RankingDTO;
+import com.sorisonsoon.ranking.dto.response.TodayRanksDTO;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.PageRequest;
@@ -35,5 +36,10 @@ public class RankingService {
         return rankings.stream()
                 .map(ranking -> new RankingDTO(ranking.getUserId(), ranking.getScore()))
                 .collect(Collectors.toList());
+    }
+
+    public List<TodayRanksDTO> getTodayRanks() {
+        List<TodayRanksDTO> rankings = rankingRepository.getTodayRanks();
+        return rankings;
     }
 }

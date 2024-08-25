@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,9 +39,8 @@ public class RankingService {
                 .collect(Collectors.toList());
     }
 
-    public List<RankResponse> getTodayRanks() {
-        List<RankResponse> rankings = rankingRepository.getTodayRanks();
-        return rankings;
+    public Map<GameCategory, List<RankResponse>> getTodayRanks(int limit) {
+        return rankingRepository.getTodayRanks(limit);
     }
 
     public List<RankResponse> getMyRanks(Long userId) {

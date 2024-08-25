@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -62,9 +63,8 @@ public class RankingController {
     }
 
     @GetMapping("/today")
-    public ResponseEntity<List<RankResponse>> getTodayRanking(){
-        List<RankResponse> todayRanks = rankingService.getTodayRanks();
-        return ResponseEntity.ok(todayRanks);
+    public Map<GameCategory, List<RankResponse>> getTodayRanking(@RequestParam int limit){
+        return rankingService.getTodayRanks(limit);
     }
 
     @GetMapping("/myRank")

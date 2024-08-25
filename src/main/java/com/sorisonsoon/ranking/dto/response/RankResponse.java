@@ -13,13 +13,15 @@ public class RankResponse {
     private final Integer score;
     private final LocalDateTime createdAt;
     private final Integer myRank;
+    private final String nickname;
 
     public RankResponse(
             Long rankingId,
             Long userId,
             GameCategory category,
             Integer score,
-            LocalDateTime createdAt
+            LocalDateTime createdAt,
+            String nickname
     ) {
         this.rankingId = rankingId;
         this.userId = userId;
@@ -27,6 +29,7 @@ public class RankResponse {
         this.score = score;
         this.createdAt = createdAt;
         this.myRank = null;
+        this.nickname = nickname;
     }
 
     public RankResponse(
@@ -43,5 +46,40 @@ public class RankResponse {
         this.score = score;
         this.createdAt = createdAt;
         this.myRank = myRank;
+        this.nickname = null;
+    }
+
+    public RankResponse(
+            Long rankingId,
+            Long userId,
+            GameCategory category,
+            Integer score,
+            LocalDateTime createdAt
+    ) {
+        this.rankingId = rankingId;
+        this.userId = userId;
+        this.category = category;
+        this.score = score;
+        this.createdAt = createdAt;
+        this.myRank = null; // 기본값 설정
+        this.nickname = null; // 기본값 설정
+    }
+
+    public RankResponse(
+            Long rankingId,
+            Long userId,
+            GameCategory category,
+            Integer score,
+            LocalDateTime createdAt,
+            Integer myRank,
+            String nickname
+    ) {
+        this.rankingId = rankingId;
+        this.userId = userId;
+        this.category = category;
+        this.score = score;
+        this.createdAt = createdAt;
+        this.myRank = myRank;
+        this.nickname = nickname;
     }
 }

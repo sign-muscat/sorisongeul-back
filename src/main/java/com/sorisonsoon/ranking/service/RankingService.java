@@ -5,12 +5,17 @@ import com.sorisonsoon.ranking.domain.entity.Ranking;
 import com.sorisonsoon.ranking.domain.repository.RankingRepository;
 import com.sorisonsoon.ranking.dto.RankingDTO;
 import com.sorisonsoon.ranking.dto.response.RankResponse;
+import com.sorisonsoon.user.dto.response.NickNameUserInfo;
+import com.sorisonsoon.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,6 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RankingService {
     private final RankingRepository rankingRepository;
+    private final UserService userService;
 
     public void save(Long userId, GameCategory category, double score) {
         final Ranking newRanking = Ranking.of(
@@ -40,7 +46,30 @@ public class RankingService {
     }
 
     public Map<GameCategory, List<RankResponse>> getTodayRanks(int limit) {
-        return rankingRepository.getTodayRanks(limit);
+        Map<GameCategory, List<RankResponse>> rankingsByCategory = rankingRepository.getTodayRanks(limit);
+
+        Map<GameCategory, List<RankResponse>> enrichedRankings = new HashMap<>();
+
+        for (Map.Entry<GameCategory, List<RankResponse>> entry : rankingsByCategory.entrySet()) {
+            List<RankResponse> enrichedRankResponses = new ArrayList<>();
+            for (RankResponse rankResponse : entry.getValue()) {
+                NickNameUserInfo userInfo = userService.getUserNickname(rankResponse.getUserId());
+                String nickname = userInfo.getNickname();
+
+                RankResponse enrichedRankResponse = new RankResponse(
+                        rankResponse.getRankingId(),
+                        rankResponse.getUserId(),
+                        rankResponse.getCategory(),
+                        rankResponse.getScore(),
+                        rankResponse.getCreatedAt(),
+                        nickname
+                );
+                enrichedRankResponses.add(enrichedRankResponse);
+            }
+            enrichedRankings.put(entry.getKey(), enrichedRankResponses);
+        }
+
+        return enrichedRankings;
     }
 
     public List<RankResponse> getMyRanks(Long userId) {

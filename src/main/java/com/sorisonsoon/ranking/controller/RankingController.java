@@ -24,15 +24,6 @@ public class RankingController {
     private static final Logger logger = LoggerFactory.getLogger(RankingController.class);
     private final RankingService rankingService;
 
-//    @PostMapping
-//    public ResponseEntity<Void> saveScore(@RequestParam Long userId,
-//                                          @RequestParam GameCategory category,
-//                                          @RequestParam double score) {
-//        logger.info("Saving score for userId: {}, category: {}, score: {}", userId, category, score);
-//        rankingService.save(userId, category, score);
-//        return ResponseEntity.ok().build();
-//    }
-
     @PostMapping
     public ResponseEntity<ApiResponse<?>> saveScore(
             @AuthenticationPrincipal CustomUser customUser,

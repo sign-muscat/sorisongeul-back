@@ -15,7 +15,6 @@ import static com.sorisonsoon.ranking.domain.entity.QRanking.ranking;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +42,6 @@ public class RankingRepositoryImpl implements RankingRepositoryCustom{
                 .orderBy(ranking.category.asc(), ranking.score.desc())
                 .fetch();
 
-        // Java 로직에서 카테고리별 상위 N개 선택 후 그룹화
         return allRankings.stream()
                 .collect(Collectors.groupingBy(RankResponse::getCategory,
                         Collectors.collectingAndThen(

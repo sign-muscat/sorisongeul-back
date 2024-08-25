@@ -24,8 +24,10 @@ public class GameChallengeController {
 
     @GetMapping("/check-correct")
     public ResponseEntity<SoundCorrectResponse> checkCorrect(@AuthenticationPrincipal CustomUser user) {
-        SoundCorrectResponse result = gameChallengeService.checkCorrect(user.getUserId());
-
+        SoundCorrectResponse result = null;
+        if(user != null) {
+            result = gameChallengeService.checkCorrect(user.getUserId());
+        }
         return ResponseEntity.ok(result);
     }
 
@@ -55,11 +57,8 @@ public class GameChallengeController {
     }
 
     @PostMapping("/reset-answer")
-    public ResponseEntity<Void> resetAnswer() {
-        // Test 데이터 @AuthenticationPrincipal
-        Long userId = 1L;
-
-        gameChallengeService.resetUserAnswer(userId);
+    public ResponseEntity<Void> resetAnswer(@AuthenticationPrincipal CustomUser user) {
+        gameChallengeService.resetUserAnswer(user.getUserId());
 
         return ResponseEntity.ok().build();
     }

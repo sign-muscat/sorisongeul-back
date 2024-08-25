@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.sorisonsoon.user.service.MailService;
 import com.sorisonsoon.interest.service.InterestService;
 import com.sorisonsoon.interest.service.WordCloudService;
 import com.sorisonsoon.user.domain.entity.User;
@@ -30,6 +31,8 @@ import com.sorisonsoon.user.domain.type.CustomUser;
 import com.sorisonsoon.user.dto.UserFormDto;
 import com.sorisonsoon.user.dto.response.NickNameUserInfo;
 import com.sorisonsoon.user.service.UserService;
+import com.sorisonsoon.user.service.Response;
+import com.sorisonsoon.user.service.UserMailResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

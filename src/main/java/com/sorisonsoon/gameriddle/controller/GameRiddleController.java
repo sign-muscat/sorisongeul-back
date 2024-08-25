@@ -4,8 +4,10 @@ import com.sorisonsoon.common.domain.type.GameDifficulty;
 import com.sorisonsoon.gameriddle.dto.request.GameFinishRequest;
 import com.sorisonsoon.gameriddle.dto.response.HandQuestionResponse;
 import com.sorisonsoon.gameriddle.service.GameRiddleService;
+import com.sorisonsoon.user.domain.type.CustomUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -43,11 +45,9 @@ public class GameRiddleController {
     }
 
     @PostMapping("/game-finish")
-    public ResponseEntity<Void> gameFinish(@RequestBody List<GameFinishRequest> finishRequest) {
-        // Test 데이터 @AuthenticationPrincipal
-        Long userId = 1L;
-
-        gameRiddleService.gameFinish(userId, finishRequest);
+    public ResponseEntity<Void> gameFinish(@RequestBody List<GameFinishRequest> finishRequest,
+                                           @AuthenticationPrincipal CustomUser user) {
+        gameRiddleService.gameFinish(user.getUserId(), finishRequest);
 
         return ResponseEntity.created(URI.create("api/v1/")).build();
     }

@@ -13,7 +13,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class NickNameUserInfo {
     private Long userId;
-    private String nickname ;
+    private String id;
+    private String nickname;
     private String email;
     private String profileImage;
 

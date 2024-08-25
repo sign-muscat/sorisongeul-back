@@ -148,6 +148,6 @@ public class UserService implements UserDetailsService {
     public NickNameUserInfo getUserNickname(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ExceptionCode.NOT_FOUND_USER));
-        return new NickNameUserInfo(user.getUserId(), user.getNickname(), user.getEmail(), user.getProfileImage());
+        return new NickNameUserInfo(user.getUserId(), user.getId(), user.getNickname(), user.getEmail(), user.getProfileImage());
     }
 }

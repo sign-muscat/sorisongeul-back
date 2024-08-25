@@ -84,7 +84,7 @@ public class FriendService {
 
         for (Interest interest : interests) {
             List<Double> embedding = transformersEmbeddingModel.embed(interest.getKeyword());
-            userEmbeddings.computeIfAbsent(interest.getUserId(), k -> new ArrayList<>()).add(embedding);
+            userEmbeddings.computeIfAbsent(interest.getUser().getUserId(), k -> new ArrayList<>()).add(embedding);
         }
 
         Map<Long, Double> similarityMap = new HashMap<>();

@@ -31,6 +31,13 @@ ext {
 
 dependencies {
 
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    // mail
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+	implementation 'jakarta.mail:jakarta.mail-api:2.0.1'
+	runtimeOnly 'com.sun.mail:jakarta.mail:2.0.1'
+
     /**
      * Spring boot 스타터 의존성
      */
@@ -65,7 +72,7 @@ dependencies {
     /**
      * 보안 관련 의존성
      */
-    implementation 'org.springframework.boot:spring-boot-starter-security' //TODO: 스프링시큐리티 의존성 - 셋팅 단계 에서만 제외
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'

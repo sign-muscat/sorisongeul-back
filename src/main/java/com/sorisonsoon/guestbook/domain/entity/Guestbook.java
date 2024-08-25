@@ -1,15 +1,29 @@
 package com.sorisonsoon.guestbook.domain.entity;
 
-import com.sorisonsoon.guestbook.domain.type.GuestbookStatus;
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.CreatedDate;
 
-import java.time.LocalDateTime;
+import com.sorisonsoon.guestbook.domain.type.GuestbookStatus;
+import com.sorisonsoon.guestbook.dto.GuestBookFormDto;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "guestbook")
+@Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Guestbook {
 
@@ -25,8 +39,20 @@ public class Guestbook {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    private LocalDateTime modifiedAt;
+    @Enumerated(EnumType.STRING)
+    private GuestbookStatus status = GuestbookStatus.ACTIVATE;
 
-    @Enumerated(value = EnumType.STRING)
-    private GuestbookStatus status;
+    public static Guestbook createGuestbook(GuestBookFormDto guestBookFormDto) {
+        Guestbook guestbook = new Guestbook();
+        
+        guestbook.setSenderId(guestBookFormDto.getSenderId());
+        guestbook.setReceiverId(guestBookFormDto.getReceiverId());
+        guestbook.setContent(guestBookFormDto.getContent());
+        guestbook.setCreatedAt(guestBookFormDto.getCreatedAt());
+        if (guestBookFormDto.getStatus() != null) {
+            guestbook.setStatus(guestBookFormDto.getStatus()); 
+        }
+
+        return guestbook;
+    }
 }

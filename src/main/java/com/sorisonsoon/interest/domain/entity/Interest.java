@@ -1,21 +1,36 @@
 package com.sorisonsoon.interest.domain.entity;
 
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
+import com.sorisonsoon.user.domain.entity.User;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Getter
 @Table(name = "interests")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Interest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "interest_id")
     private Long interestId;
 
-    private Long userId;
     private String keyword;
+
+    private String wordCloudUrl;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

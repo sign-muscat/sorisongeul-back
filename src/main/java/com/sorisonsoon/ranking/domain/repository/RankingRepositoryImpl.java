@@ -25,37 +25,6 @@ import java.util.stream.Collectors;
 public class RankingRepositoryImpl implements RankingRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
-    //당일 기준 카테고리별 1위 조회
-//    @Override
-//    public List<RankResponse> getTodayRanks() {
-//        LocalDate today = LocalDate.now();
-//
-//        QRanking rankingSub = new QRanking("rankingSub");
-//
-//        // 각 카테고리별 최고 점수를 가진 레코드만 가져오는 쿼리
-//        return queryFactory
-//                .select(Projections.constructor(RankResponse.class,
-//                        ranking.rankingId,
-//                        ranking.userId,
-//                        ranking.category,
-//                        ranking.score,
-//                        ranking.createdAt
-//                ))
-//                .from(ranking)
-//                .where(ranking.createdAt.between(today.atStartOfDay(), today.atTime(LocalTime.MAX))
-//                        .and(ranking.category.in(VOICE, RIDDLE, CHALLENGE))
-//                        .and(ranking.score.eq(
-//                                JPAExpressions.select(rankingSub.score.max())
-//                                        .from(rankingSub)
-//                                        .where(rankingSub.category.eq(ranking.category)
-//                                                .and(rankingSub.createdAt.between(today.atStartOfDay(), today.atTime(LocalTime.MAX))))
-//                                        .groupBy(rankingSub.category)
-//                        ))
-//                )
-//                .fetch();
-//    }
-
-
     @Override
     public Map<GameCategory, List<RankResponse>> getTodayRanks(int limit) {
         LocalDate today = LocalDate.now();

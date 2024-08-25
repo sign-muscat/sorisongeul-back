@@ -3,7 +3,7 @@ package com.sorisonsoon.ranking.controller;
 import com.sorisonsoon.common.domain.type.GameCategory;
 import com.sorisonsoon.common.dto.response.ApiResponse;
 import com.sorisonsoon.ranking.dto.RankingDTO;
-import com.sorisonsoon.ranking.dto.response.TodayRanksDTO;
+import com.sorisonsoon.ranking.dto.response.RankResponse;
 import com.sorisonsoon.ranking.service.RankingService;
 import com.sorisonsoon.user.domain.type.CustomUser;
 import lombok.RequiredArgsConstructor;
@@ -62,9 +62,22 @@ public class RankingController {
     }
 
     @GetMapping("/today")
-    public ResponseEntity<List<TodayRanksDTO>> getTodayRanking(){
-        List<TodayRanksDTO> todayRanks = rankingService.getTodayRanks();
+    public ResponseEntity<List<RankResponse>> getTodayRanking(){
+        List<RankResponse> todayRanks = rankingService.getTodayRanks();
         return ResponseEntity.ok(todayRanks);
+    }
+
+    @GetMapping("/myRank")
+    public ResponseEntity<List<RankResponse>> getMyRanking(@AuthenticationPrincipal CustomUser customUser) {
+        Long userId;
+        List<RankResponse> myRanking;
+        if(customUser != null) {
+            userId = customUser.getUserId();
+            myRanking = rankingService.getMyRanks(userId);
+        } else {
+            return null;
+        }
+        return ResponseEntity.ok(myRanking);
     }
 
 }   

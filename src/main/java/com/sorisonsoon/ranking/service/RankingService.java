@@ -4,7 +4,7 @@ import com.sorisonsoon.common.domain.type.GameCategory;
 import com.sorisonsoon.ranking.domain.entity.Ranking;
 import com.sorisonsoon.ranking.domain.repository.RankingRepository;
 import com.sorisonsoon.ranking.dto.RankingDTO;
-import com.sorisonsoon.ranking.dto.response.TodayRanksDTO;
+import com.sorisonsoon.ranking.dto.response.RankResponse;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.PageRequest;
@@ -38,8 +38,13 @@ public class RankingService {
                 .collect(Collectors.toList());
     }
 
-    public List<TodayRanksDTO> getTodayRanks() {
-        List<TodayRanksDTO> rankings = rankingRepository.getTodayRanks();
+    public List<RankResponse> getTodayRanks() {
+        List<RankResponse> rankings = rankingRepository.getTodayRanks();
         return rankings;
+    }
+
+    public List<RankResponse> getMyRanks(Long userId) {
+        List<RankResponse> myRankings = rankingRepository.getMyRanks(userId);
+        return myRankings;
     }
 }

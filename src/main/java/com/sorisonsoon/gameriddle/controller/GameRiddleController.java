@@ -47,7 +47,9 @@ public class GameRiddleController {
     @PostMapping("/game-finish")
     public ResponseEntity<Void> gameFinish(@RequestBody List<GameFinishRequest> finishRequest,
                                            @AuthenticationPrincipal CustomUser user) {
-        gameRiddleService.gameFinish(user.getUserId(), finishRequest);
+        if(user != null) {
+            gameRiddleService.gameFinish(user.getUserId(), finishRequest);
+        }
 
         return ResponseEntity.created(URI.create("api/v1/")).build();
     }

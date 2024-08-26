@@ -1,25 +1,30 @@
 package com.sorisonsoon.payment.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
+
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "payment")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@Setter
+@NoArgsConstructor
 public class Payment {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "payment_id")
     private Long paymentId;
 
-    private int payerId;
+    private Long payerId;
     private int amount;
 
     @CreatedDate
+    @Column(name = "payed_at")
     private LocalDateTime payedAt;
+
+    // 필요한 경우 추가 필드들...
 }

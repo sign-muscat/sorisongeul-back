@@ -3,6 +3,7 @@ package com.sorisonsoon.ranking.domain.entity;
 import com.sorisonsoon.common.domain.type.GameCategory;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.data.annotation.CreatedDate;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "ranking")
 @DynamicInsert
+@Getter
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Ranking {
@@ -24,6 +26,7 @@ public class Ranking {
 
     private Long userId;
 
+    @Column(name = "category")
     @Enumerated(value = EnumType.STRING)
     private GameCategory category;
 
@@ -39,10 +42,8 @@ public class Ranking {
     }
 
     public static Ranking of(Long userId, GameCategory category, int score) {
-        return new Ranking(
-                userId,
-                category,
-                score
-        );
+        return new Ranking(userId, category, score);
     }
+
 }
+

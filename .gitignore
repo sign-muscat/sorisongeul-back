@@ -38,6 +38,7 @@ out/
 
 ### 어플리케이션 설정 관련 파일 ###
 application*.yml
+application.yml
 
 ### 첨부파일 관련 ###
 **/src/main/resources/**/*.jpg

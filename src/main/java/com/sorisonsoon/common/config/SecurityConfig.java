@@ -50,25 +50,29 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.GET,
                                         "/api/v1/swagger-ui/**", "/api/swagger-ui/**", "/api/v1/api-docs/**", "/api/v1",
                                         "/images/**", "/api/v1/community/list",
-                                        "/api/v1/challenge/**", "/api/v1/sign/**", "/api/v1/voice/**","/api/v1/me"
+                                        "/api/v1/challenge/**", "/api/v1/sign/**", "/api/v1/voice/**","/api/v1/me",
+                                        "/api/rankings/**"
                                     ).permitAll();
                     auth.requestMatchers(HttpMethod.POST,
-                                         "/api/v1/login", "/api/v1/token/issue",
-                                         "/api/v1/users/new", "/api/v1/users/mailConfirm", "/api/v1/users/verifyCode",
-                                         "/api/v1/verify/**", "/api/v1/email/**",
-                                         "/api/v1/challenge/**", "/api/v1/sign/**", "/api/v1/voice/**").permitAll();
+                                        "/api/v1/login", "/api/v1/token/issue",
+                                        "/api/v1/users/new", "/api/v1/users/mailConfirm", "/api/v1/users/verifyCode",
+                                        "/api/v1/verify/**", "/api/v1/email/**",
+                                        "/api/v1/challenge/**", "/api/v1/sign/**", "/api/v1/voice/**",
+                                        "/api/rankings/**").permitAll();
 
                     auth.requestMatchers(HttpMethod.GET,
                                         "/api/v1/search/**",
                                         "/api/v1/friends/**",
                                         "/api/v1/challenge/**", "/api/v1/sign/**",
-                                        "/api/v1/voice/**","/api/v1/page/**"
+                                        "/api/v1/voice/**","/api/v1/page/**",
+                                        "/api/payments/**", "/api/memberships/**"
                                     ).hasAnyAuthority("FREE_USER", "PREMIUM_USER", "ADMIN");
 
                     auth.requestMatchers(HttpMethod.POST,
                                         "/api/v1/logout",
                                         "api/v1/friends/**", "/api/v1/page/**", "/api/v1/challenge/**",
-                                         "api/v1/sentence/**", "api/v1/sign/**","/api/v1/voice/**" )
+                                        "api/v1/sentence/**", "api/v1/sign/**","/api/v1/voice/**",
+                                        "/api/payments/**", "/api/memberships/**")
                                             .hasAnyAuthority("FREE_USER", "PREMIUM_USER", "ADMIN");
 
                     auth.requestMatchers(HttpMethod.POST,

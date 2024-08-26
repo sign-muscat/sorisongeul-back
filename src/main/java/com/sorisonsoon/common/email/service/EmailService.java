@@ -44,7 +44,7 @@ public class EmailService {
         helper.setSubject("[소리손순] 이메일 인증 요청");
         System.out.println("Subject: " + mimeMessage.getSubject());
         String htmlContent = "<div style='text-align: center;'>"
-                + "    <img src='cid:logoImage' alt='소리손순 로고' style='width:57px; margin-bottom:20px;' />"
+                + "    <img src='https://sorisonsoon.vercel.app/images/logo.png' alt='소리손순 로고' style='width:57px; margin-bottom:20px;' />"
                 + "    <h2>이메일 인증 요청</h2>"
                 + "    <p>안녕하세요, 소리손순 입니다.</p>"
                 + "    <p>요청하신 인증 번호는 <strong style='font-size: 1.2em;'>[" + code + "]</strong> 입니다.</p>"
@@ -52,8 +52,6 @@ public class EmailService {
                 + "</div>";
 
         helper.setText(htmlContent, true);
-        ClassPathResource image = new ClassPathResource("static/images/logo.png");
-        helper.addInline("logoImage", image);
 
         javaMailSender.send(mimeMessage);
     }

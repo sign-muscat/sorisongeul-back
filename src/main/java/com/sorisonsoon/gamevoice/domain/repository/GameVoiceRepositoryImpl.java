@@ -19,8 +19,8 @@ public class GameVoiceRepositoryImpl implements GameVoiceRepositoryCustom {
         return queryFactory
                 .select(Projections.constructor(GameVoiceQuestionResponse.class,
                         gameVoice.voiceId,
-                        gameVoice.question,
                         gameVoice.answer,
+                        gameVoice.question,
                         gameVoice.category,
                         gameVoice.difficulty,
                         gameVoice.isTodayQuestion,

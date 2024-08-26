@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Ranking {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ranking_id")
@@ -25,12 +26,8 @@ public class Ranking {
 
     private Long userId;
 
-
-    
     @Column(name = "category")
-
     @Enumerated(value = EnumType.STRING)
-
     private GameCategory category;
 
     private int score;
@@ -47,4 +44,6 @@ public class Ranking {
     public static Ranking of(Long userId, GameCategory category, int score) {
         return new Ranking(userId, category, score);
     }
+
 }
+
